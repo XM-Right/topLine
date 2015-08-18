@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<style>
+		body{ background-color:rgba(0,0,0,.2); }
+		.flex-wrap{  -webkit-box-orient: vertical; -webkit-flex-flow: column; flex-flow: column; height:92%; overflow: hidden; }
+		section.flex-wrap{    overflow:auto;}
+		.head{ background-color:#d43d3d;  line-height:44px;  height:44px;   position:relative; color:#fafafa; padding:0 10px; }
+		.head span{ border:1px solid #fafafa; line-height:22px; padding:0 12px; float:right; margin-right:40px; margin-top:10px; border-radius:4px; }
+		.head span:before{ content: '编辑' ;}
+		.head span.active:before{ content: '完成' ;}
+		.arrows{ position:absolute; right:0; bottom:0; height:40px; width:40px; z-index:1;  transition:all .3s;}
+		section nav{ padding: 16px 5px ;  background-color:#fafafa;  }
+		section nav span{ margin:6px 1% ; display:block; float:left; position: relative; border:1px solid #dbdbdb; border-radius:4px; line-height:30px;  color:#5d5d5d; width:23%;  box-sizing:border-box; text-align:center; background-color:white;  font-size: .8rem; }
+		section nav span b{ font-weight: normal; }
+		section nav span.active{ color:#fe2a2a; }
+		section nav span.hover{ background-color:#fe2a2a; border-color:#fe2a2a;  color:white; }
+		section nav#me-channel-list.active span{  }
+		section nav#me-channel-list.active span:before{ content: 'x'; position: absolute; background-color: #ccc; color: white; border-radius: 50%; line-height: 10px; padding: 2px 4px; left: -5px; top: -7px;  }
+		section nav#me-channel-list.active span.default{ border:1px dashed #eee; color: #ccc; }
+		section nav#me-channel-list.active span.default:before{ display: none; }
+		section header{ background-color:#eee; line-height:35px; color:#595959; padding:0 10px;  font-size:.8rem; }
+		
+		.con{ background-color:#fafafa;  -webkit-transform: translate3d(0,-100%,200px); transform: translate3d(0,-100%,200px);  transition:all .3s;  }
+		.flex-wrap.active .con{  -webkit-transform: translate3d(0,0,200px); transform: translate3d(0,0,200px);  transition:all .3s;  }
+		.flex-wrap.active .arrows{ -webkit-transform:rotate( 180deg ); transform:rotate( 180deg ); }
+		
+		body.black .head{ background-color: #651414; color: #cacaca;  }
+		body.black .head span{ border-color: #cacaca;  }
+		body.black .arrows:before,
+		body.black .arrows:after{ background-color: #cacaca;  }
+		body.black section nav span{ background-color: #252525;  border-color: #252525;  color: #707070; }
+		body.black section nav span.active{  color: #935656; }
+		body.black .border-t:before, body.black .border-b:after{ background-color: #ddd; }
+		body.black section nav span.hover{ background-color: #444;  border-color: #444;   }
+	</style>
+</head>
+<body>
+	<div class="wrap flex-wrap" >
+		<nav class="head">
+			<span tapmode="hover" onclick="funEdit( this );" ></span>
+			我的频道
+			<div tapmode="hover" onclick="funCloseThisFrame();"  class="arrows"></div>
+		</nav>
+		<section class="flex-con flex-wrap" >
+			<div class="con flex-con">
+				<header class="border-b">我的频道</header>
+				<nav id="me-channel-list" >
+					<span class="active default" ><b>推荐</b></span>
+				</nav>
+				<header class="border-t border-b">点击添加</header>
+				<nav id="channel-list" >
+					<!-- <span>精选</span> -->
+				</nav>
+			</div>
+		</section>
+	</div>
+</body>
+</html>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	var firstEnter =  [{	updatedAt : new Date(), id : 1111 ,imgs : '',title : '首次登入，请联网请求数据!!!'}] ,
+		isLayout = '';
+	apiready = function(){
+		$api.skin();
+		funWinIni();
+		$api.addCls($api.dom('.wrap'), 'active');
+		$api.fixIos7Bar( $api.dom( '.wrap' ) );
+	};
+	
+	function funWinIni(){
+			/* 
+				if( $api.getStorage( 'channel-list' ) ){
+					var index_channel = JSON.parse( $api.getStorage( 'index-channel' ) );
+					var channel_list = JSON.parse( $api.getStorage( 'channel-list' ) );
+					for( var x in index_channel ){
+						$api.append( $api.dom('#me-channel-list'), '<span tapmode="hover" onclick="funRemove( this );"  class="newSpan" ><i class="none datas" >'+ JSON.stringify( index_channel[x] )+'</i><b>'+index_channel[x].title+'</b></span>' );
+					}
+					for( var x in channel_list ){
+						if( $api.getStorage( 'index-channel' ).indexOf( channel_list[x].id ) == -1 && channel_list[x].title != '推荐' ){
+							$api.prepend( $api.dom('#channel-list'), '<span tapmode="hover" onclick="funAdd( this );"  class="newSpan" ><i class="none datas" >'+ JSON.stringify( channel_list[x] )+'</i><b>'+channel_list[x].title+'</b></span>' );
+						}
+					}
+					api.parseTapmode();
+				}else{
+					 
+				}
+			*/
+			if( api.connectionType == 'none' ){
+				if( $api.getStorage( 'channel-list' ) ){
+					funEachData( $api.getStorage( 'channel-list' ) );		//无网调用本地缓存
+				}else{
+					funEachData( firstEnter );	//首次登陆无网无数据
+				};
+				$api.toast( '网络错误，请检查' );
+			}else{
+				funChannerInt();	//有网则Ajax请求数据
+			};
+	}
+	function funChannerInt(){
+		var bodyParam = { limit: 1000, skip:0	};
+		$api.ajax('/channel?filter='+JSON.stringify(bodyParam), 'get', null, function (ret, err) {
+			if (ret) {
+				$api.setStorage( 'channel-list' , JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+				funEachData( ret );		//部署到HTML
+			}else{
+				if( !$api.getStorage( 'channel-list' ) ){		//在无网络的情况下判断本地是否缓存
+					funEachData(  firstEnter );		//首次登陆无网无数据
+				}else{
+					funEachData( $api.getStorage( 'channel-list' ) );	//无网调用本地缓存
+				};
+				$api.toast( err.msg, 5000 );
+			}
+		});
+	}
+	
+	
+	function funEachData( ret ){
+		if( typeof ret === 'string' ){	//如果是本地的数据一定是 String类型 必须转成JSON对象
+			ret = JSON.parse( ret );
+		}
+		if( $api.getStorage( 'index-channel' ) ){
+			var index_channel = JSON.parse( $api.getStorage( 'index-channel' ) );
+			for( var x in index_channel ){
+				$api.append( $api.dom('#me-channel-list'), '<span tapmode="hover" onclick="funRemove( this );"  class="newSpan" ><i class="none datas" >'+ JSON.stringify( index_channel[x] )+'</i><b>'+index_channel[x].title+'</b></span>' );
+			}
+			for( var x in ret ){
+				if( $api.getStorage( 'index-channel' ).indexOf( ret[x].id ) == -1 && ret[x].title != '推荐' ){			
+					$api.append($api.dom('#channel-list'),  '<span tapmode="hover" onclick="funAdd( this );"  class="newSpan" ><i class="none datas" >'+JSON.stringify( ret[x] )+'</i><b>'+ret[x].title+'</b></span>' );
+				}
+			}
+		}else{
+			for( var x in ret ){			
+				$api.append($api.dom('#channel-list'),  '<span tapmode="hover" onclick="funAdd( this );"  class="newSpan" ><i class="none datas" >'+JSON.stringify( ret[x] )+'</i><b>'+ret[x].title+'</b></span>' );
+			}
+		}
+		
+		var eB = $api.domAll('#me-channel-list .newSpan');
+		if( eB.length ){
+			for( var x in eB){
+				if( eB[x].nodeType ){
+					isLayout += eB[x].innerHTML;
+				}
+			};
+		}
+	};
+	
+	function funCloseThisFrame(){
+		$api.removeCls($api.dom('.wrap'), 'active');
+		var eB = $api.domAll('#me-channel-list .newSpan');
+		var newIsLayout = '';
+		var chan_data = [];
+		var rela_chan = [];
+		for( var x in eB){
+			if( eB[x].nodeType ){
+				if( eB[x].querySelector('i') ){
+					chan_data.push( JSON.parse( eB[x].querySelector('i').innerHTML  ) )
+					rela_chan.push(  JSON.parse( eB[x].querySelector('i').innerHTML  ).id )
+				}
+				newIsLayout += eB[x].innerHTML;
+			}
+		};
+		
+		if( newIsLayout != isLayout && api.connectionType != 'none'   ){
+			if( $api.getStorage( 'user' ) ){
+				var bodyParam = {rela_chan : rela_chan};
+				$api.ajax('/user/'+JSON.parse( $api.getStorage( 'user' ) ).id, 'put', bodyParam, function (ret, err) {
+					if (ret) {
+						//	alert( JSON.stringify( ret ))
+					}else{
+						$api.toast( err.msg );
+					}
+				});
+			}
+			$api.setStorage( 'index-channel' , JSON.stringify( chan_data ) );	//每一次都缓存到本地一次数据
+			api.execScript({
+			    name: 'root',
+			    script: 'funEachData( '+JSON.stringify( chan_data )+' )'
+			});
+		}
+		setTimeout(function(){
+			api.closeFrame();
+			$api.rmStorage('backFrame');	//属于监听返回关闭页面所以当关闭本页时必须清除backFrame缓存变量
+		},300);
+	};
+	
+	function funAdd( tag ){	
+		var datas = tag.querySelector('.datas').innerHTML;	
+		$api.append( $api.dom('#me-channel-list'), '<span tapmode="hover" onclick="funRemove( this );"  class="newSpan" ><i class="none datas" >'+datas+'</i><b>'+JSON.parse( datas ).title+'</b></span>' );
+		tag.parentNode.removeChild( tag );
+		api.parseTapmode();
+	};
+	
+	function funRemove( tag ){	
+		if( $api.hasCls( $api.dom('#me-channel-list'), 'active' ) ){
+			var datas = tag.querySelector('.datas').innerHTML;	
+			$api.prepend( $api.dom('#channel-list'), '<span tapmode="hover" onclick="funAdd( this );"  class="newSpan" ><i class="none datas" >'+datas+'</i><b>'+JSON.parse( datas ).title+'</b></span>' );
+			tag.parentNode.removeChild( tag );
+			api.parseTapmode();
+		}
+	};
+	
+	function funEdit( tag ){
+		if( $api.hasCls( tag, 'active' ) ){
+			$api.removeCls( tag, 'active' );
+			$api.removeCls( $api.dom('#me-channel-list'), 'active' );
+		}else{
+			$api.addCls( tag, 'active' );
+			$api.addCls( $api.dom('#me-channel-list'), 'active' );
+		}
+	};
+</script>

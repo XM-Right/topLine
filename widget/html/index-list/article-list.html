@@ -1,0 +1,633 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<style>
+		body{  background-color:white; height: auto; }
+		.search{ background-color:#ebebeb; padding:8px 15px; }
+		.search .ic-search{ background-color:white; border-radius:50px; line-height:28px; color:#989898; text-align:center; background-repeat:no-repeat; background-position: 40% center; background-size:17px;}
+		.information{ line-height:20px; font-size:.8rem; padding:0 10px;  color:#a9a9a9; position: relative; z-index: 1; }
+		.information span{ float:right; }
+		section{ /*  padding-bottom: 46px; */ }
+		section ul { color:#222; line-height:18px; padding:0 10px; overflow: hidden; position: relative; }
+		section ul.pad-b {  padding-bottom: 42px; }
+		section ul li{ padding:10px 0; position:relative;  transition: all .3s; }
+		section ul li.active{ -webkit-transform:translateX( 100% ); transform:translateX( 100% );  opacity: .5; }
+		section ul li .con{ -webkit-box-orient: vertical; -webkit-flex-flow: column; flex-flow: column;  padding-right:6px; }
+		section ul li .pic{ width:100px; position:relative; background:url() no-repeat center; background-size:100% auto; }
+		section ul li .pic.load{ }
+		section ul li .pic:after{ content:''; position:absolute; left:0; top:0; right:0; bottom:0;  background-repeat:no-repeat; background-position: center; background-size: auto 70%; }
+		section ul li footer{ font-size:.8rem; position:relative; z-index:2; color:#b8b8b8; padding-top:12px; }
+		section ul li footer p{ position:absolute; right:0; top:50%; margin-top:-4px; color:#a5a5a5; }
+		section ul li footer p span{ margin-left:10px;  border:1px solid #a5a5a5; border-radius:6px;  line-height:9px;  padding:1px 8px; }
+		section ul li footer em{ font-style:normal; font-size:.8rem; color:white; padding:2px;margin-right:4px;  }
+		section ul li footer.hot em{ background-color:#f05b5b; }
+		section ul li footer.subscription em{ background-color:#2a90d7; }
+		section ul li footer p.hover{ opacity: .9; }
+		section ul li .onclick{ position:absolute; left:-10px; top:0; right:-10px; bottom:0;  }
+		section ul li .onclick.hover:after{ background-color:#f5f5f5; }
+		section ul li .onclick:after{ content:''; position:absolute; left:0; top:0; right:0; bottom:0; z-index:-1; }
+		section ul li .pics{ padding-top:8px; position: relative; width: 100%; min-height: 60px; }
+		section ul li .pics:after{ content:''; position:absolute; left:0; top:0; right:0; bottom:0;  background-repeat:no-repeat; background-position: center; background-size: auto 20%; }
+		section ul li .pics p{ background:url() no-repeat center; background-size:100% auto;  max-height: 140px; overflow: auto; margin: 0 3px; }
+		section ul li .pics p img{ width:40%; display: block; margin: 80px auto;  }
+		section ul li .pics p img.load{ width:100%; margin: 0; }
+		section ul li.empty{ text-align: center; padding-top: 160px; }
+		section ul li.more{ text-align:center; color:#aaa;position: absolute; left:0; bottom: 0; right: 0; }
+		section ul li.more span{ background:url(../../image/spinner_76_inner_holo.png) no-repeat; background-size:100% 100%; display:inline-block; width:16px; height:16px; vertical-align:middle; -webkit-animation:fa-spin 1s infinite steps(8); animation:fa-spin 1s infinite steps(8); }
+		section ul li.more b{ font-weight:normal;  vertical-align:middle;  display:inline-block;padding:0 10px;  }
+		section ul li:last-child:before,
+		section ul li:last-child:after{ display: none !important; }
+
+		
+		.remove{  position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 10; }
+		.remove .close{ background-color: rgba(0,0,0,.4); position: absolute; left: 0; top: 0; right: 0; bottom: 0;  z-index: -1;}
+		.remove .con{ margin: 15px; border-radius: 6px; overflow: hidden; }
+		.remove .con header{ background-color: #d43d3d; line-height: 42px; color: #f8f3f3; padding: 0 10px; }
+		.remove .con header b{ background-color: #db6262; border-radius: 4px; line-height: 24px; display: block; float: right; margin-top: 9px; padding: 0  10px; }
+		.remove .con nav{ background-color: white; padding: 8px 0;  }
+		.remove .con nav span{ display: block; float: left; padding: 4px 6px; border: 1px solid #e0e0e0; color: #929292; margin: 5px 10px; font-size: .9rem; border-radius: 4px; }
+		.remove .con nav span.hover{ opacity: .9; }
+		
+		body.black .search{ background-color: #363636; }
+		body.black .search .ic-search{ background-color: #252525; }
+		body.black .information{ color: #4a4a4a; }
+		body.black section ul{ color: #707070; }
+		body.black section ul li .onclick.hover:after{ background-color:#333; }
+		body.black section ul li footer{ color:#4e4e4e; }
+		body.black section ul li footer p{ color:#505050;  }
+		body.black section ul li footer p span{border-color: #505050; }
+	</style>
+</head>
+<body onscroll="funIsBottom()" >
+	<div class="remove none">
+		<div tapmode="hover" onclick="funCloseRemove();" class="close"></div>
+		<div class="con">
+			<header>
+				<b tapmode="hover" onclick="funRemove();" >确定</b>
+				不感兴趣理由<span>（ 可多选 ）</span>
+			</header>
+			<nav>
+				<span tapmode="hover" onclick="funUprea( this )" >重复、旧闻</span>
+				<span tapmode="hover" onclick="funUprea( this )" >内容质量差</span>
+				<span tapmode="hover" onclick="funUprea( this )" >国际社会</span>
+				<span tapmode="hover" onclick="funUprea( this )" >来源：手机人民网</span>
+				<span tapmode="hover" onclick="funUprea( this )" >中方</span>
+				<span tapmode="hover" onclick="funUprea( this )" >索马里</span>
+			</nav>
+		</div>
+	</div>
+	<div class="search none">
+		<div class="ic-search" >搜索</div>
+	</div>
+	<div class="information border-b">
+		<!-- 
+			<span>今天</span>
+			2015.07.26 星期天
+			<div class="ic-pulltorefresh"></div>
+		 -->
+	</div>
+	<section>
+		<ul id="list" class="pad-b" >
+			<!--
+				<li class="flex-wrap border-b" >
+					<div class="con flex-con flex-wrap">
+						<header class="flex-con" >为救白血病女儿 她出来拥抱 十元一次</header>
+						<div class="onclick"></div>
+						<footer class="subscription" >
+							<span tapmode="hover" onclick="funOpenRemove( this );" > x </span>
+							<em>订阅</em>光明网 评论259
+						</footer>
+					</div>
+					<div class="pic ic-move" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+				</li>	
+				<li class="flex-wrap border-b" >
+					<div class="con flex-con flex-wrap">
+						<header class="flex-con" >为救白血病女儿为救白血病女儿为救白血病女儿为救白血病女儿 她出来拥抱 十元一次</header>
+						<div class="onclick"></div>
+						<footer class="subscription" >
+							<span tapmode="hover" onclick="funOpenRemove( this );" > x </span>
+							<em>订阅</em>光明网 评论259
+						</footer>
+					</div>
+					<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+				</li>
+				<li class="flex-wrap border-b" >
+					<div class="con flex-con flex-wrap">
+						<header class="flex-con" >为救白血病女儿 她出来拥抱 十元一次</header>
+						<div class="pics flex-wrap">
+							<p class="flex-con"><img src="http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg" /></p>
+						</div>
+						<div class="onclick"></div>
+						<footer class="hot" >
+							<span tapmode="hover" onclick="funOpenRemove( this );" > x </span>
+							<em>热</em>光明网 评论259
+						</footer>
+					</div>
+				</li>
+				<li class="flex-wrap border-b" >
+					<div class="con flex-con flex-wrap">
+						<header class="flex-con" >为救白血病女儿为救白血病女儿为救白血病女儿为救白血病女儿 她出来拥抱 十元一次</header>
+						<div class="onclick"></div>
+						<div class="pics flex-wrap">
+							<p class="flex-con" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);"  ></p>
+							<p class="flex-con" style="background-image:url(../../image/b58f8c5494eef01fbf0123cde2fe9925bc317da4.jpg);"></p>
+							<p class="flex-con" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);"  ></p>
+						</div>
+						<footer class="subscription" >
+							<span tapmode="hover" onclick="funOpenRemove( this );" > x </span>
+							<em>订阅</em>光明网 评论259
+						</footer>
+					</div>
+				</li>
+				<li class="flex-wrap border-b" >
+					<div class="con flex-con flex-wrap">
+						<header class="flex-con" >为救白血病女儿为救白血病女儿为救白血病女儿为救白血病女儿 她出来拥抱 十元一次</header>
+						<div class="onclick"></div>
+						<div class="pics flex-wrap">
+							<p class="flex-con" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);"  ></p>
+							<p class="flex-con" style="background-image:url(../../image/b58f8c5494eef01fbf0123cde2fe9925bc317da4.jpg);"></p>
+							<p class="flex-con" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);"  ></p>
+						</div>
+						<footer class="subscription" >
+							<span tapmode="hover" onclick="funOpenRemove( this );" > x </span>
+							<em>订阅</em>光明网 评论259
+						</footer>
+					</div>
+				</li>
+				 <li class="empty">无数据</li>
+				<li class="flex-wrap border-b" >
+					<div class="con flex-con flex-wrap">
+						<header class="flex-con" >为救白血病女儿为救白血病女儿为救白血病女儿为救白血病女儿 她出来拥抱 十元一次</header>
+						<div class="onclick"></div>
+						<footer class="subscription" >
+							<p>2015-1-35<span tapmode="hover" onclick="funOpenRemove( this );" >x</span></p>
+							<em>订阅</em>光明网 评论259
+						</footer>
+					</div>
+				</li>
+			 -->
+			 <li class="more"><span></span><b>正在推荐</b></li>
+		</ul>
+	</section>
+	<div class="add-channel none">
+		<span>立即添加</span>
+		把此频道添加到首页
+	</div>
+	<div id="log" style="position:fixed; left:0; top:0; background:#000; color:white;"></div>
+</body>
+</html>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+
+	var skipIndex = 0,
+		pageParam,
+		localFs,
+		isLocalFs = false;
+	apiready = function(){
+		$api.skin();
+		pageParam = {
+			title : api.pageParam.title,
+			id : api.pageParam.id
+		};
+		localFs = api.require('fs');
+		funWinIni();
+		
+		api.setRefreshHeaderInfo({
+		    loadingImg: 'widget://image/refresh.png',
+		    bgColor: '#ccc',
+		    textColor: '#fff',
+		    textDown: '下拉推荐...',
+		    textUp: '放开即可推荐...',
+		    showTime: false
+		}, function(ret, err){
+			if( api.connectionType != 'none' &&  $api.dom('#list .newLi') ){
+				var eNewLi = $api.domAll('#list .newLi');
+				var aT = 0;
+				for( var x in eNewLi ){
+					if( eNewLi[x].nodeType ){
+							for( var j in eNewLi ){
+								if( eNewLi[j].nodeType ){
+									if(  aT < new Date( eNewLi[j].getAttribute('data-createdAt') ) ){
+											aT =  new Date( eNewLi[j].getAttribute('data-createdAt') );
+									}
+								}
+							}
+					}
+				}
+				funArticleIni( false, aT  );
+			}else{
+				$api.toast( '网络连接失败' );
+				api.refreshHeaderLoadDone();
+			}
+		});	
+	};
+	
+	function funIsBottom(){
+		if( document.body.clientHeight <= document.documentElement.clientHeight +document.body.scrollTop  && $api.domAll('#list .newLi').length >= 5){
+			//	alert( '底部' )
+			funArticleIni( 'append' );
+		}
+		var eBgImg = $api.domAll('.bg-img');
+		for( var i = 0; i < eBgImg.length; i++){
+			var boundingBg = eBgImg[i].getBoundingClientRect();
+			if( boundingBg.bottom > 0  && boundingBg.top <= document.documentElement.clientHeight){
+				eBgImg[i].style.backgroundImage = 'url('+eBgImg[i].getAttribute('data-echo')+')';
+				$api.addCls( eBgImg[i], 'load' );
+			}else{
+				eBgImg[i].style.backgroundImage = 'url(../../image/default_bg.png)';
+				$api.removeCls( eBgImg[i], 'load' );
+			}
+		}
+		var eImImg = $api.domAll('.im-img');
+		for( var i = 0; i < eImImg.length; i++){
+			var boundingIm = eImImg[i].getBoundingClientRect();
+			if( boundingIm.bottom > 0  && boundingIm.top <= document.documentElement.clientHeight){
+				eImImg[i].src = eImImg[i].getAttribute('data-echo');
+				$api.addCls( eImImg[i], 'load' );
+			}else{
+				eImImg[i].src = '../../image/default_bg.png';
+				$api.removeCls( eImImg[i], 'load' );
+			}
+		}
+		$api.dom('#log').innerHTML = $api.domAll('li').length;
+	}
+	function funWinIni(){
+		funFsIsOpen(  );
+		if( pageParam.title == '推荐' ){
+			$api.removeCls( $api.dom('.search'), 'none' );
+		};
+		$api.append( $api.dom('.information'), '<span>今天</span>'+setDate( Date() )+'<div class="ic-pulltorefresh"></div>' );
+	}
+	function funArticleIni( des, aT ){
+		isLocalFs = true;
+		//	alert( whereIds )	判断是否有最新的数据
+		//alert( aT )			//判断是否有最新的数据
+		var skip = ( skipIndex++ ) * 7;
+		if( pageParam.title ==  '推荐' ){
+			if( ! aT ){
+				var bodyParam = { limit: 7, skip: skip, 'fields': {'content': false}, order : 'createdAt DESC', where:{ is_hot : 1 } };
+				//var bodyParam = { limit: 30, skip: 0, 'fields': {'content': false}, order : 'createdAt DESC', where:{ is_hot : 1 } };
+			}else{
+				var bodyParam = { limit: 7, skip: 0, 'fields': {'content': false}, order : 'createdAt DESC', where:{ is_hot : 1, createdAt : { 'gt' :aT  }  } };
+			}
+		}else if( pageParam.title ==  '精选' ){
+			if(  ! aT ){
+				var bodyParam = { limit: 7, skip: skip, 'fields': {'content': false}, order : 'createdAt DESC', where:{ is_bot : 1 } };
+				//var bodyParam = { limit: 30, skip: 0, 'fields': {'content': false}, order : 'createdAt DESC', where:{ is_bot : 1 } };
+			}else{
+				var bodyParam = { limit: 7, skip: 0, 'fields': {'content': false},  order : 'createdAt DESC', where:{ is_bot : 1, createdAt : { 'gt' :aT  } } };
+			}
+		}else{
+			if(  ! aT ){
+				var bodyParam = { limit: 7, skip: skip, 'fields': {'content': false},  order : 'createdAt DESC', where:	{ rela_chan : pageParam.id} };
+				//var bodyParam = { limit: 30, skip: 0, 'fields': {'content': false},  order : 'createdAt DESC', where:	{ rela_chan : pageParam.id} };
+			}else{
+				var bodyParam = { limit: 7, skip: 0, 'fields': {'content': false},  order : 'createdAt DESC', where:	{ rela_chan : pageParam.id, createdAt : { 'gt' :aT  }} };
+			}
+		}
+		$api.ajax('/article?filter='+JSON.stringify(bodyParam), 'get', null, function (ret, err) {
+			if (ret) {
+				//	alert( JSON.stringify( ret ))
+				if( ret.length ){
+					if( $api.hasCls( $api.dom('#list .more'), 'none' ) )$api.removeCls( $api.dom('#list .more'), 'none' );
+					
+					if( !$api.dom('body .add-update') && des != 'append' ){
+					 	$api.append( $api.dom('body'), '<div class="add-update">今天头条推荐引擎有'+ret.length+'条更新</div>' );
+					}
+					funFsIsOpen( ret ,des )
+				}else{
+					skipIndex--;
+					if( !$api.dom('body .add-update') && des != 'append' ){
+					 	$api.append( $api.dom('body'), '<div class="add-update">没有最新的文章</div>' );
+					}
+					if( ! $api.hasCls( $api.dom('#list .more'), 'none' ) )$api.addCls( $api.dom('#list .more'), 'none' );
+					if( $api.hasCls( $api.dom('#list'), 'pad-b' ) )$api.removeCls( $api.dom('#list'), 'pad-b' );
+					if( $api.hasCls( $api.dom('.information'), 'none' ) )$api.removeCls( $api.dom('.information'), 'none'  );
+					if( ! $api.dom('#list .empty') &&  ! $api.domAll('#list .newLi').length  ) $api[  'prepend' ]( $api.dom('#list'), '<li class="empty">暂无数据</li>' );
+				}
+				setTimeout(function(){
+					$api.remove( $api.dom('.add-update') );
+				},4000);
+			}else{
+					if( ! $api.dom('#list .empty') &&  ! $api.domAll('#list .newLi').length  ) $api[  'prepend' ]( $api.dom('#list'), '<li class="empty">暂无数据</li>' );
+					if( ! $api.hasCls( $api.dom('#list .more'), 'none' ) )$api.addCls( $api.dom('#list .more'), 'none' );
+					$api.toast( err.msg, 5000 );
+			};
+			api.refreshHeaderLoadDone();
+			api.hideProgress();
+		})
+	}
+
+	function funFsRead( fd ){
+		localFs.read({
+		    fd:fd
+		},function(ret,err){
+			if( ret.status ){
+				funEachData( ret.data  );
+			}else{
+				
+			}
+		});
+	}
+	
+	function funFsCreate( datas , des  ){
+			localFs.createFile({
+			    path: 'fs://article-list'+pageParam.id+'.json'
+			},function(ret,err){
+				if( ret.status ){
+					funFsOpen(  datas , des );
+				}else{
+					alert( 'createFile' )
+					alert( JSON.stringify( err ))
+				}
+			});
+	}
+	function funFsOpen(  datas , des  ){
+			localFs.open({
+			    path: 'fs://article-list'+pageParam.id+'.json',
+			    flags: 'read_write'
+			},function(ret,err){
+				if( ret ){
+					if( isLocalFs ){
+						funEachData( datas , des, ret.fd );
+					}else{
+						funFsRead(  ret.fd  );
+					}
+				}else{
+					alert( 'open' )
+					alert( JSON.stringify( err ))
+				}
+			});
+	};
+	function funFsWrite( datas , fd ){
+		localFs.write({
+		    fd:fd,
+		    data: datas
+		},function(ret,err){	
+			
+		}); 
+	};
+	
+	//	判断文件是否存在
+	function funFsIsOpen( datas, des ){
+		localFs.exist({
+		    path: 'fs://article-list'+pageParam.id+'.json'
+		},function(ret,err){
+			if( ret ){
+				if( ! ret.exist  ){			//	false	没创建
+						if( isLocalFs ){
+								funFsCreate( datas , des  );
+						}else{
+							if( api.connectionType == 'none' ){
+								if( ! $api.dom('#list .empty') )$api[  'prepend' ]( $api.dom('#list'), '<li class="empty">暂无数据</li>' );
+								if( ! $api.hasCls( $api.dom('.information'), 'none' ) )$api.addCls( $api.dom('.information'), 'none'  );
+								if( ! $api.hasCls( $api.dom('#list .more'), 'none' ) )$api.addCls( $api.dom('#list .more'), 'none' );
+								if( $api.hasCls( $api.dom('#list'), 'pad-b' ) )$api.removeCls( $api.dom('#list'), 'pad-b' );
+								$api.toast( '网络连接失败' );
+							}else{
+								funArticleIni( );	//有网则Ajax请求数据
+							};
+						}
+				}else{
+					funFsOpen( datas , des  );
+				}
+			}else{
+				alert( JSON.stringify( err ))
+			}
+		});
+	};
+	
+	function funcache( data, des, num ){
+		num = num || 0;
+		if( num <= data.length - 1 ){
+			if( data[num].type == 'play' || data[num].type == 'img' ){
+				var imgs = data[ num ].imgs.split(',');
+				if( imgs.length < 3 ){
+					api.imageCache({
+						url: imgs[0]
+					},function(ret,err){
+						if( ret.status ){
+							if( data[num].type == 'play' ){
+								if( Math.random() >= 0.5 ){
+									var ht = '<li data-id="'+data[num].id+'" data-createdAt="'+data[num].createdAt+'"  class="newLi flex-wrap border-b" >'+
+									'	<div class="con flex-con flex-wrap">'+
+									'		<header class="flex-con" >'+data[num].title+'</header>'+
+									'		<div class="pics flex-wrap ic-move">'+
+									'			<p class="flex-con"><img class="im-img" data-echo="'+ret.url+'"  src="../../image/default_bg.png" /></p>'+
+									'		</div>'+
+									'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
+										'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
+									'		</div>'+
+									'		<footer class="hot" >'+
+										'		<p tapmode="hover" data-id="'+data[num].id+'" onclick="funOpenRemove( this );">'+setDate( data[num].createdAt )+'<span>x</span></p>'+
+									'			<em>热</em>光明网 评论0'+
+									'		</footer>'+
+									'	</div>'+
+									'</li>'
+								}else{
+									var ht = '<li data-id="'+data[num].id+'" data-createdAt="'+data[num].createdAt+'"  class="newLi hei flex-wrap border-b" >'+
+									'	<div class="con flex-con flex-wrap">'+
+									'		<header class="flex-con" >'+data[num].title+'</header>'+
+									'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
+										'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
+									'		</div>'+
+									'		<footer class="subscription" >'+
+									'			<p tapmode="hover" data-id="'+data[num].id+'" onclick="funOpenRemove( this );">'+setDate( data[num].createdAt )+'<span>x</span></p>'+
+									'			<em>订阅</em>光明网 评论0'+
+									'		</footer>'+
+									'	</div>'+
+									'	<div class="pic ic-move bg-img" data-echo="'+ret.url+'"  style="background-image:url(../../image/default_bg.png);" ></div>'+
+									'</li>'	
+								}
+							}else if( data[num].type == 'img' ){
+								if( Math.random() > 0.5 ){
+									var ht = '<li data-id="'+data[num].id+'"  data-createdAt="'+data[num].createdAt+'" class="newLi hei flex-wrap border-b" >'+
+									'	<div class="con flex-con flex-wrap">'+
+									'		<header class="flex-con" >'+data[num].title+'</header>'+
+									'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
+									'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
+									'		</div>'+
+									'		<footer class="subscription" >'+
+									'			<p tapmode="hover" data-id="'+data[num].id+'" onclick="funOpenRemove( this );">'+setDate( data[num].createdAt )+'<span>x</span></p>'+
+									'			<em>订阅</em>光明网 评论0'+
+									'		</footer>'+
+									'	</div>'+
+									'	<div class="pic bg-img"  data-echo="'+ret.url+'" style="background-image:url(../../image/default_bg.png);" ></div>'+
+									'</li>'
+								}else{
+									var ht = '<li data-id="'+data[num].id+'" data-createdAt="'+data[num].createdAt+'"  class="newLi flex-wrap border-b" >'+
+									'	<div class="con flex-con flex-wrap">'+
+									'		<header class="flex-con" >'+data[num].title+'</header>'+
+									'		<div class="pics flex-wrap">'+
+									'			<p class="flex-con"><img class="im-img" data-echo="'+ret.url+'"  src="../../image/default_bg.png" /></p>'+
+									'		</div>'+
+									'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
+									'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
+									'		</div>'+
+									'		<footer class="hot" >'+
+									'			<p tapmode="hover" data-id="'+data[num].id+'" onclick="funOpenRemove( this );">'+setDate( data[num].createdAt )+'<span>x</span></p>'+
+									'			<em>热</em>光明网 评论0'+
+									'		</footer>'+
+									'	</div>'+
+									'</li>'
+								}
+							}
+							$api[ des || 'prepend' ]( $api.dom('#list'), ht );
+							api.parseTapmode();
+							funcache( data, des, ++num )
+						}else{
+							alert( JSON.stringify( err ))
+						}
+					});
+				}else if( imgs.length >= 3 ){
+					funcaches( data, des, num, imgs )
+				}
+			
+			}else{
+					var ht = '<li data-id="'+data[num].id+'" data-createdAt="'+data[num].createdAt+'"  class="newLi hei flex-wrap border-b" >'+
+					'	<div class="con flex-con flex-wrap">'+
+					'		<header class="flex-con" >'+data[num].title+'</header>'+
+					'		<footer class="subscription" >'+
+					'			<p tapmode="hover" data-id="'+data[num].id+'" onclick="funOpenRemove( this );">'+setDate( data[num].createdAt )+'<span>x</span></p>'+
+					'			<em>订阅</em>光明网 评论0'+
+					'		</footer>'+
+					'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
+						'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
+					'		</div>'+
+					'	</div>'+
+					'</li>'
+					$api[ des || 'prepend' ]( $api.dom('#list'), ht );
+					api.parseTapmode();
+					funcache( data, des, ++num )
+			}
+		}
+	}
+	
+	var cachesImg = [];
+	function funcaches( data, des, x, imgs, num ){
+		num = num || 0;
+		if( num < imgs.length ){
+			api.imageCache({
+				url: imgs[num]
+			},function(ret,err){
+				if( ret.status ){
+					cachesImg.push( ret.url );
+					funcaches( data, des, x, imgs, ++num )
+				}else{
+					alert( JSON.stringify( err ))
+				}
+			});
+		}else{
+			var ht = '<li data-id="'+data[x].id+'" data-createdAt="'+data[x].createdAt+'" class="newLi flex-wrap border-b" >'+
+			'	<div class="con flex-con flex-wrap">'+
+			'		<header class="flex-con" >'+data[x].title+'</header>'+
+			'		<div class="pics flex-wrap">'+
+			'			<p class="flex-con bg-img" data-echo="'+cachesImg[0]+'" style="background-image:url(../../image/default_bg.png);"  ></p>'+
+			'			<p class="flex-con bg-img" data-echo="'+cachesImg[1]+'" style="background-image:url(../../image/default_bg.png);"></p>'+
+			'			<p class="flex-con bg-img" data-echo="'+cachesImg[2]+'" style="background-image:url(../../image/default_bg.png);"  ></p>'+
+			'		</div>'+
+			'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
+			'			<div class="pageData none"  data-id="'+data[x].id+'"  data-title="'+data[x].title+'" ></div>'+
+			'		</div>'+
+			'		<footer class="subscription" >'+
+			'		<p tapmode="hover" data-id="'+data[x].id+'" onclick="funOpenRemove( this );">'+setDate( data[x].createdAt )+'<span>x</span></p>'+
+			'			<em>订阅</em>光明网 评论0'+
+			'		</footer>'+
+			'	</div>'+
+			'</li>'
+			$api[ des || 'prepend' ]( $api.dom('#list'), ht );
+			api.parseTapmode();
+			funcache( data, des, ++x )
+		}
+	}
+	
+	var storageArticleLists = [];
+	function funEachData( ret, des, fd ){
+		if( typeof ret === 'string' ){
+			 ret = JSON.parse( ret );
+			skipIndex = ret.length / 7;
+		}
+		if( $api.dom('#list .empty') )$api.dom('#list .empty').remove();
+		if( ret.length < 7){
+			if( ! $api.hasCls( $api.dom('#list .more'), 'none' ) )$api.addCls( $api.dom('#list .more'), 'none' );
+			if( $api.hasCls( $api.dom('#list'), 'pad-b' ) )$api.removeCls( $api.dom('#list'), 'pad-b' );
+		}
+		funcache( ret, des );
+		setTimeout(function(){
+				funFsWrite( JSON.stringify( storageArticleLists ) , fd );
+		},4000);
+	}
+	
+	function setHeight( tag ){
+		var eLi = tag.parentNode.parentNode.parentNode.parentNode;
+		$api.addCls( eLi, 'hei' );
+		eLi.style.height = ( eLi.offsetHeight - 20) + 'px';
+	}
+	
+	
+	function funOpenRemove( tag ){
+		 $api.addCls( tag.parentNode.parentNode.parentNode, 'ready');	
+		 $api.removeCls( $api.dom( '.remove' ), 'none' );
+		 $api.dom( '.remove .con' ).style.marginTop = ( document.documentElement.clientHeight - $api.dom( '.remove .con' ).offsetHeight ) / 2 + 'px';
+	};
+	
+	function funCloseRemove(){
+		if( !$api.hasCls( $api.dom( '.remove' ) , 'none' ) ){
+			 $api.addCls( $api.dom( '.remove' ), 'none' );
+			 $api.removeCls( $api.dom( '#list li.ready' ), 'ready' );
+		}
+	};
+	
+	function funRemove(  ){
+		 $api.addCls( $api.dom( '#list li.ready' ), 'active' );
+		 $api.addCls( $api.dom( '.remove' ), 'none' );
+		 setTimeout(function(){
+			 $api.dom( '#list li.ready' ).parentNode.removeChild( $api.dom( '#list li.ready' ) );
+		 },300);
+	};
+	
+	function funUprea( tag ){
+		
+	};
+	
+	
+	function funOpenHeader( tag ){
+		var id = tag.querySelector('.pageData').getAttribute('data-id');
+		var title = tag.querySelector('.pageData').getAttribute('data-title');
+		var name = tag.getAttribute('data-name');
+		api.openWin({
+			name:  name,
+			url: '../public/header.html',
+			pageParam:{
+				file : 'article',
+				id : id,
+				title : title
+			},
+			animation : {            
+			    type:"movein",                //动画类型（详见动画类型常量）
+			    subType:"from_right",       //动画子类型（详见动画子类型常量）
+			    duration: 400 
+			}
+		});
+	};
+	
+	function setDate( d ) {  
+		var date = new Date( d );
+		function pad(n){  
+			return n<10 ? '0'+n : n  
+		}  
+		return  pad(date.getMonth()+1)+'/'  
+		+ pad(date.getDate())+' '  
+		+ pad(date.getHours())+':'  
+		+ pad(date.getMinutes());
+	}  
+	
+	//	 window.onscroll  = funCloseRemove;
+	 
+	 
+</script>

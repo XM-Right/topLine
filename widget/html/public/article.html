@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DEMO</title>
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+	<style>
+			body{ background-color: #fafafa; }
+			.win-article{  transition:all 2s;  opacity: 0; }
+			.win-article .title{ background-color:#eee; padding:4px 10px;  color:#3f6799; line-height:30px; }
+			.win-article .title:after{ content:''; display:block; }
+			.win-article .title .pic{ width:30px; height:30px; border-radius:4px; overflow:hidden; background:white url() no-repeat center; background-size:100% auto; float:left; margin-right:10px; }
+			.win-article .title .pic img{ width:100%; min-height:100%;  }
+			.win-article .con{ padding:10px; }
+			.win-article .con .article-title{ color:#555; font-size:1.4rem; padding-bottom:10px;  }
+			.win-article .con .article-title p{ color:#b9b9b9; font-size:.8rem; padding:6px 0; }
+			.win-article .con .article{ color:#464646;  padding-bottom: 20px; }
+			.win-article .con .article p{ padding:10px 0; line-height:22px; }
+			.win-article .con .article p a{ color: #3c6598; padding:0 8px; }
+			.win-article .con .article img{ max-width:100%; display:block; margin:10px auto; }
+			.win-article .con .article iframe,
+			.win-article .con .article video{ width:100%; display:block; margin:10px auto; }
+			.win-article .con .atte{ border:1px solid #eee; padding:10px; }
+			.win-article .con .atte .txt{  position:relative; padding:2px 6px; }
+			.win-article .con .atte .txt span{ background-color:#3b99da; color:white; border-radius:2px; position:absolute; right:0; top:8px; display:inline-block; padding:4px 8px; }
+			.win-article .con .atte .txt span:before{ content: '订阅'; }
+			.win-article .con .atte .txt span.active{ background-color: transparent; border: 1px solid #ddd; color: #ddd;  }
+			.win-article .con .atte .txt span.active:before{ content: '已订阅'; }
+			.win-article .con .atte .txt h6{ color:#484848; }
+			.win-article .con .atte .txt p{ width:80%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;  font-size:.8rem; color:#9e9e9e;  padding-top: 7px;  }
+			.win-article .con .atte .pic{ display:table; width:40px; height:40px; background:white url() no-repeat center; background-size:100% auto;  }
+			.win-article .banner{ background-color:#ebebeb; border:1px solid #ddd; border-width:1px 0; }
+			.win-article .banner img{ max-width:100%; display:block; margin:10px auto; }
+			.win-article .correlation{  background-color:#ebebeb;  }
+			.win-article .correlation .box{ background-color:white; margin-bottom:10px; }
+			.win-article .correlation .box h6{ line-height:32px; }
+			.win-article .correlation .box h6 span{ border-left:6px solid #fe3232; padding-left:10px; color:#444; }
+			.win-article .correlation .box .tags{ padding:5px 10px; font-size: .8rem; }
+			.win-article .correlation .box .tags span{ color:#5aa8df; border:1px solid #d8d8d8; display:inline-block;border-radius:50px;margin:4px;padding:4px 10px; }
+			.win-article .correlation .box ul{ padding:0 10px;   }
+			.win-article .correlation .box ul li{ color:#464646;  line-height: 38px; font-size: .8rem;  }
+			.win-article .correlation .box .href{ color:#d02d2d; text-align:center; padding:10px 0; }
+			.win-article .correlation .box .praise{   padding:10px; }
+			.win-article .correlation .box .praise p{ background-repeat:no-repeat; color: #969696; text-align:center;  background-position: 20% center; background-size: auto 70%; }
+			.win-article .correlation .box .praise p.active{ color: #fe3232; }
+			.win-article .correlation .box .praise p span{ display:block; border:1px solid #e9e9e9;  margin-right:5px; border-radius:4px; padding:6px 0; text-indent:2em; }
+			.win-article .correlation .box .praise p:last-child span{ margin:0; margin-left:5px; }
+			.win-article .correlation .box .topic-href{ color:#6484ad; border:1px solid #6484ad; border-radius:4px; margin:10px; padding:6px 10px; text-align:center; }
+			.win-article .correlation .box ol li{ margin:0 10px; padding:6px 0; overflow:hidden; position:relative; }
+			.win-article .correlation .box ol li .txt{color:#484848; position:relative; padding-left:15px; }
+			.win-article .correlation .box ol li .txt h6{  line-height:inherit; }
+			.win-article .correlation .box ol li .txt p{  font-size:.8rem; padding-top:6px; }
+			.win-article .correlation .box ol li .txt .share{ font-size:.8rem; color:#aaa; padding-top:10px; }
+			.win-article .correlation .box ol li .txt .share em{ font-style:normal; }
+			.win-article .correlation .box ol li .txt .share h5{ float:right; }
+			.win-article .correlation .box ol li .txt .share b{ color:#9b9b9b; font-weight:normal; position: relative; padding-left:28px;  display:inline-block;background-repeat:no-repeat;  background-position: 20% center; background-size: auto 100%;  }
+			.win-article .correlation .box ol li .txt .share b.pra:after{ content:'+1';  position:absolute; left:50%; top:100%; display:block; z-index:-1; font-size: 1.4rem;  }
+			.win-article .correlation .box ol li .txt .share b.pra.active:after{ -webkit-transition:all 1.6s;  transition:all 2s; top:-400%; z-index:1; opacity:0; }
+			.win-article .correlation .box ol li .pic{ display:table; width:36px; height:36px; background: url() no-repeat center; background-size: 100% auto; }
+			.win-article .correlation .box ol li .pic span{ display:table-cell; vertical-align:middle; }
+			.win-article .correlation .box ol li .pic span img{ width:100%; vertical-align:middle; }
+			.win-article .correlation .box ol li:last-child{ border:0; }
+			.win-article .correlation .box ol li.empty{ color: #ccc; text-align: center; padding: 60px 0;  }
+			.more{ width: 50px; height: 50px; background: url(../../image/spinner_76_inner_holo.png) no-repeat center; background-size: 100% 100%; position: fixed; left: 50%; top: 50%; margin-left: -25px; margin-top: -25px;  -webkit-animation:fa-spin 1s infinite steps(8); animation:fa-spin 1s infinite steps(8);  }
+			
+			.win-topic {  padding-bottom: 42px; }
+			.win-topic .title{ border-bottom:10px solid #f2f2f2; }
+			.win-topic .title .pic{  overflow:hidden;  position:relative; height:220px; background:#eee url() no-repeat center; background-size:auto 100% ; }
+			.win-topic .title .pic:after{ content:''; display:block; position:absolute; left:-21px;  bottom:-64px; right:0; background-color:#fafafa; height:100px;  -webkit-transform:rotate(10deg);transform:rotate(10deg); }
+			.win-topic .title .pic img{  vertical-align:middle; min-width:100%; /*  */ }
+			.win-topic .title .txt{padding:16px 10px; margin:0 10px; margin-top:-30px; position:relative; z-index:1; background-size:auto 16px; }
+			.win-topic .title .txt .con{ border-left:1px solid #ddd; padding:10px; }
+			.win-topic .title .txt .con h6{ color:#333; font-size:1.4rem; }
+			.win-topic .title .txt .con p{ color:#999; padding:6px 0; font-size:.8rem; }
+			.win-topic .title .txt .con p span{ border:1px solid #3b99da; color:#3b99da; border-radius:4px; float:right; margin-top:-5px; display:inline-block; padding:4px 6px; }
+			.win-topic .title .txt .con p span.hover{ background-color:#3b99da; color:white; }
+			.win-topic .title .txt .con p span:before{ content:'+ 围观'; }
+			.win-topic .title .txt .con p span.active{ border-color:#aaa; color:#aaa; }
+			.win-topic .title .txt .con p span.active.hover{ background-color:#aaa; color:#444; }
+			.win-topic .title .txt .con p span.active:before{ content:'已围观'; }
+			.win-topic ul li{ position:relative;  padding:6px 10px; }
+			.win-topic ul li:after{     content: '';     position: absolute;     left: 0; bottom:0px;    background: #ddd;     width: 100%;     height: 1px;     -webkit-transform: scaleY(0.5);             transform: scaleY(0.5);     -webkit-transform-origin: 0 0;             transform-origin: 0 0; }
+			.win-topic ul li:last-child:after{  display:none; }
+			.win-topic ul li:last-child{ border:0; }
+			.win-topic ul li.empty{ color: #ccc; text-align: center; padding: 60px 0;  }
+			.win-topic ul li .txt{ position:relative; padding:2px 6px; }
+			.win-topic ul li .txt h6{ color:#484848; padding:6px 0; }
+			.win-topic ul li .txt p{  font-size:.8rem; color:#9e9e9e;  padding: 2px 0;}
+			.win-topic ul li .txt p span{   background-repeat:no-repeat; background-position:0 center; background-size:auto 100% ; padding-left: 22px; }
+			.win-topic ul li .txt p span:nth-child( 2 ){ text-align:center; background-position:40% center;}
+			.win-topic ul li .txt p span:nth-child( 3 ){ text-align:right;  background-position:70% center;}
+			.win-topic ul li .txt p i{ font-style:normal; }
+			.win-topic ul li .pic{ display:table; width:30px; height:30px; border-radius:50%; overflow:hidden;  background-repeat:no-repeat; background-position:center; background-size: 100% auto; }
+			.win-topic ul li .comment{ margin:10px 0; background-color:#f0f0f0; padding:6px; color:#333; line-height:20px; font-size:.8rem; }
+			.win-topic ul li .comment h5{ padding:2px 0; }
+			.win-topic ul li .comment span{ color:#314c83; }
+			.win-topic ul li .comment b{ color:#314c83; font-weight:normal; border:1px solid #ddd; border-radius:50px; display:inline-block; padding:2px 10px; background:url(../../image/writeicon_review_dynamic.png) no-repeat 10px center;background-size:auto 14px; padding-left:30px; }
+			.win-topic .fot{ background-color: rgba(0,0,0,.9); position: fixed; left: 0; bottom: 0; right: 0; text-align: center; line-height: 40px; color: #f6f6f3; }
+			.win-topic .fot span{  background-repeat:no-repeat; background-position: left center; background-size:  auto 100%; padding-left: 26px;  }
+			.more{ width: 50px; height: 50px; background: url(../../image/spinner_76_inner_holo.png) no-repeat center; background-size: 100% 100%; position: fixed; left: 50%; top: 50%; margin-left: -25px; margin-top: -25px;  -webkit-animation:fa-spin 1s infinite steps(8); animation:fa-spin 1s infinite steps(8);  }
+
+	</style>
+  </head>
+  <body>
+		<div class="win-topic topic-frm none">
+			<div class="title newHt">
+				<!-- <div class="pic" style="background-image:url(../../image/img201411221610510977_info427X320.jpg);" ></div>
+				<div class="txt" >
+						<div class="con">
+							<h6>奔跑吧兄弟</h6>
+							<p>浙江卫视《奔跑吧兄弟》第二季，4月17日每周五晚21：00王者归来!</p>
+							<p><span tapmode="hover" onclick="checkbox( this );"></span>0 人围观，0 条帖子</p>
+						</div>
+				</div>-->
+			</div>
+			<ul id="topic-com" >
+				<!-- 
+					<li class="flex-wrap" >
+						<div class="pic" style="background-image:url(http://img0.bdstatic.com/img/image/fengjing0727.jpg)"></div>
+						<div class="txt flex-con" >
+							<p>毕明兴</p>
+							<p>07-09 23:23</p>
+							<h6>奔跑吧兄弟奔跑吧兄弟奔跑吧兄弟奔跑吧兄弟奔跑吧兄弟奔跑吧兄弟</h6>
+							<p class="flex-wrap" >
+								<span class="flex-con ic-share" ><i>分享</i></span>
+								<span class="flex-con ic-praise" ><i>12</i></span>
+								<span class="flex-con ic-comment" ><i>32	</i></span>
+							</p>
+							<div class="comment" >
+								<h5><span>陈楚</span>：说什么！！！</h5>
+								<h5><span>陈楚</span> 回复 <span>毕明兴</span>：赞赞赞赞赞赞</h5>
+								<h5><span>更多评论</span></h5>
+								<h5><b>写评论</b></h5>
+							</div>
+						</div>
+					</li>
+				-->
+			</ul>
+			<div tapmode="hover" onclick="funOpenWin( this );" data-name="edit-frm" class="fot"><span class="ic-dynamic">发新帖</span></div>
+		</div>
+		<div class="win-article article-frm none">
+			<div class="title">
+				<div class="pic" style="background-image:url(http://img0.bdstatic.com/img/image/fengjing0727.jpg)"></div>
+				科技之窗
+			</div>
+			<div class="con">
+				<!--
+					
+					<div class="article-title">
+						在媒体眼中最值得购买的并不是小米，而是它
+						<p>科技之窗 07-09 20:19</p>
+					</div>
+					<div class="article">
+						<p>为App开发者提供云端的API服务和数据存储服务，动态生成RESTful API，支持在线NoSQL数据表设计、API调试及用量分析；同时提供推送、云修复、大数据分析等服务， 极大的简化了服务器端开发工作。</p>
+						<img src="http://b.hiphotos.baidu.com/image/pic/item/738b4710b912c8fc123f35c0fe039245d78821eb.jpg" alt="">
+						<iframe src="http://player.youku.com/embed/XMTI3Mjc4NjkwOA==" frameborder=0 allowfullscreen></iframe>
+					</div>
+				 -->
+				<div class="atte flex-wrap">
+					<div class="pic" style="background-image:url(http://img0.bdstatic.com/img/image/fengjing0727.jpg)"></div>
+					<div class="txt flex-con">
+						<h6>科技之窗</h6>
+						<p>聚焦最新科技资讯和产品，提供深入</p>
+						<span  tapmode="hover" onclick="checkbox( this );"></span>
+					</div>
+				</div>
+			</div>
+			<div class="banner"><img src="../../image/123.jpg" /></div>
+			<div class="correlation">
+				<div class="box">
+					<h6><span>相关阅读</span></h6>
+					<div class="tags">
+						<span>数码</span>
+						<span>小米科技</span>
+						<span>Google Nexus</span>
+						<span>智能手机</span>
+					</div>
+					<ul class="border-t" >
+						<li tapmode="hover" onclicK="$api.empty();" class="border-b" >山寨机严重的摇钱树：三星和小米系列榜首</li>
+						<li tapmode="hover" onclicK="$api.empty();" class="border-b" >山寨机严重的摇钱树：三星和小米系列榜首</li>
+						<li tapmode="hover" onclicK="$api.empty();" class="border-b" >山寨机严重的摇钱树：三星和小米系列榜首</li>
+						<li tapmode="hover" onclicK="$api.empty();" class="border-b" >山寨机严重的摇钱树：三星和小米系列榜首</li>
+					</ul>
+					<div  tapmode="hover" onclicK="$api.empty();" class="href">点击进入[ 手机 ]频道 ></div>
+				</div>
+				<div class="box">
+					<div class="praise flex-wrap" >
+						<p tapmode="hover" onclick="checkbox2( this );"  class="flex-con well ic-praise" ><span class="" >34</span></p>
+						<p tapmode="hover" onclick="checkbox2( this );"   class="flex-con bad ic-trample" ><span>234</span></p>
+					</div>
+					<div  tapmode="hover" onclicK="$api.empty();" class="topic-href">米粉看过来 >> 进入话题</div>
+					<h6  id="content" ><span>热门评论</span></h6>
+					<ol id="comment" >
+						<!--
+						<li class="empty" >暂无评论</li>
+						<li class="flex-wrap border-b" >
+							<div class="pic" style="background-image:url(http://img0.bdstatic.com/img/image/fengjing0727.jpg)"></div>
+							<div class="txt flex-con">
+								<h6>美食与烹饪</h6>
+								<p>607人围观，218条帖子</p>
+								<div class="share">
+									<h5>
+										<b tapmode="hover" class="pra ic-praise" onclick="$api.thisActive( this );">234</b>
+										<b class="comp ic-comment" >12</b>
+									</h5>
+									<em>07-09 21:23</em>
+								</div>
+							</div>
+						</li>
+						 -->
+					</ol>
+				</div>
+			</div>
+		</div>
+		<div class="more"></div>
+  </body>
+  <div class="pra-open none">已赞</div>
+</html>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script>
+
+	apiready = function(){
+		$api.skin();
+		if(  api.winName == 'article-frm'){
+			if( api.connectionType == 'none' ){
+				if( $api.getStorage( 'article'+api.pageParam.id ) ){
+					 funArticle( $api.getStorage( 'article'+api.pageParam.id ) );
+				}
+				if( $api.getStorage( 'comment'+api.pageParam.id ) ){
+					 funAdd( $api.getStorage( 'comment'+api.pageParam.id ) );
+				}
+				$api.toast( '网络连接失败' );
+			}else{
+				$api.ajax('/article/'+api.pageParam.id, 'get', null, function (ret, err) {
+					if (ret) {
+						$api.setStorage( 'article'+api.pageParam.id , JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+						 funArticle( ret );
+					}else{
+						
+					}
+				});
+				$api.ajax('/comment?filter={"where":{"rela_article":"'+api.pageParam.id+'"}}', 'get', null, function (ret, err) {
+					if (ret) {
+						if( ret.length ){
+							$api.setStorage( 'comment'+api.pageParam.id , JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+							funAdd( ret );
+						}else{
+							var ht = '<li class="empty" >暂无评论</li>';
+								$api.append( $api.dom('#comment'), ht );
+						}
+					}else{
+						
+					}
+				});
+				
+			};
+		}else{
+			if( api.connectionType == 'none' ){
+				if( $api.getStorage( 'topic'+api.pageParam.id ) ){
+					 funTopic( $api.getStorage( 'topic'+api.pageParam.id ) );
+				}
+				$api.toast( '网络连接失败' );
+			}else{
+					$api.ajax('/interest/'+api.pageParam.id, 'get', null, function (ret, err) {
+						if( ret ){
+							$api.setStorage( 'topic'+api.pageParam.id , JSON.stringify( ret ) );	
+							funTopic( ret );
+						}else{
+							$api.toast( err.msg );
+						}
+					});
+				$api.ajax('/comment?filter={"where":{"rela_article":"'+api.pageParam.id+'"}}', 'get', null, function (ret, err) {
+					if (ret) {
+						if( ret.length ){
+							$api.setStorage( 'comment'+api.pageParam.id , JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+							funAdd( ret );
+						}else{
+							var ht = '<li class="empty" >暂无评论</li>';
+								$api.append( $api.dom('#topic-com'), ht );
+						}
+					}else{
+						
+					}
+				});
+			}
+		}
+		
+		//	$api.removeCls( $api.dom('body'), 'default-bg' );
+	};
+	
+	function funTopic( ret ){
+		typeof ret == 'string' ? ret = JSON.parse( ret ) :  ret = ret;
+			if( Number( ret.isOnlookers ) ){
+				var isOnlookers = 'active';
+			}
+			var img = ret.imgs.url ? ret.imgs.url : ret.imgs ;
+			var ht = '<div class="pic" style="background-image:url('+img+');" ></div>'+
+			'<div class="txt" >'+
+			'		<div class="con">'+
+			'			<h6>'+ret.title+'</h6>'+
+			'			<p>'+ret.brief+'!</p>'+
+			'			<p><span tapmode="hover" onclick="checkbox( this );"></span>0 人围观，0 条帖子</p>'+
+			'		</div>'+
+			'</div>';
+			$api.append( $api.dom( '.newHt' ), ht );
+			$api.addCls( $api.dom('.more'), 'none' );
+			$api.removeCls( $api.dom( '.'+api.winName ), 'none' );
+	}
+	function funArticle( ret ){
+		typeof ret == 'string' ? ret = JSON.parse( ret ) :  ret = ret;
+		var ht = '<div class="article-title">'+api.pageParam.title+'<p>科技之窗 07-09 20:19</p></div>'+
+		'<div class="article">'+ret.content+'</div>';
+		$api.prepend( $api.dom('.win-article .con'), ht );
+		$api.addCls( $api.dom('.win-article'), 'opacity' );
+		$api.addCls( $api.dom('.more'), 'none' );
+		$api.removeCls( $api.dom( '.'+api.winName ), 'none' );
+	}
+	function funAdd( ret ){
+			typeof ret == 'string' ? ret = JSON.parse( ret ) :  ret = ret;
+			
+		if(  api.winName == 'article-frm'){
+				for( var x in ret ){
+					var data = setDate( ret[x].createdAt ).indexOf('NaN') == -1 ? setDate( ret[x].createdAt ) :  setDate( new Date() ) ;
+					var ht = '<li class="flex-wrap border-b" >'+
+					'	<div class="pic" style="background-image:url(http://img0.bdstatic.com/img/image/fengjing0727.jpg)"></div>'+
+					'	<div class="txt flex-con">'+
+					'		<h6>'+ret[x].username+'</h6>'+
+					'		<p>'+ret[x].content+'</p>'+
+					'		<div class="share">'+
+					'			<h5>'+
+					'				<b tapmode="hover" class="pra ic-praise" onclick="$api.thisActive( this );">99</b>'+
+					'				<b class="comp ic-comment" >99</b>'+
+					'			</h5>'+
+					'			<em>'+data+'</em>'+
+					'		</div>'+
+					'	</div>'+
+					'</li>'
+					$api.prepend( $api.dom('#comment'), ht );
+				}
+			if( $api.dom('#comment .empty') )$api.remove( $api.dom('#comment .empty') );
+		}else{
+				for( var x in ret ){
+					var data = setDate( ret[x].createdAt ).indexOf('NaN') == -1 ? setDate( ret[x].createdAt ) :  setDate( new Date() ) ;
+					var ht = '<li class="flex-wrap" >'+
+					'	<div class="pic" style="background-image:url(http://img0.bdstatic.com/img/image/fengjing0727.jpg)"></div>'+
+					'	<div class="txt flex-con" >'+
+					'		<p>'+ret[x].username+'</p>'+
+					'		<p>'+data+'</p>'+
+					'		<h6>'+ret[x].content+'</h6>'+
+					'		<p class="flex-wrap" >'+
+					'			<span class="flex-con ic-share" ><i>分享</i></span>'+
+					'			<span class="flex-con ic-praise" ><i>0</i></span>'+
+					'			<span class="flex-con ic-comment" ><i>0</i></span>'+
+					'		</p>'+
+					'	</div>'+
+					'</li>';
+					$api.append( $api.dom('#topic-com'), ht );
+				}
+			if( $api.dom('#topic-com .empty') )$api.remove( $api.dom('#topic-com .empty') );
+		}
+	}
+	
+	function setDate( d ) {  
+		var date = new Date( d );
+		function pad(n){  
+			return n<10 ? '0'+n : n  
+		}  
+		return  pad(date.getMonth()+1)+'/'  
+		+ pad(date.getDate())+' '  
+		+ pad(date.getHours())+':'  
+		+ pad(date.getMinutes());
+	}  
+	function goContent(){
+		location.href = '#content';
+	}
+	
+	
+	function checkbox( tag ){
+		if( $api.hasCls(tag, 'active') ){
+			$api.removeCls( tag, 'active');
+		}else{
+			$api.addCls( tag , 'active');
+		}
+	};
+
+	function checkbox2( tag ){
+		if( ! $api.dom('.praise p.active') ){
+			$api.addCls( tag, 'active');
+		}else{
+			if( $api.dom('.praise p.active').getAttribute('class').indexOf('well') ){
+				funPra( '已踩' );
+			}else{
+				funPra( '已赞' );
+			}
+		}
+	};
+	
+	function funPra( ht ){
+		clearTimeout( time );
+		$api.dom('.pra-open').innerHTML = ht;
+		$api.removeCls( $api.dom('.pra-open'), 'none');
+		var time = setTimeout(function(){
+			$api.addCls( $api.dom('.pra-open'), 'none');
+		},2000);
+	}
+	
+	function goContent(){
+		location.href = '#content';
+	}
+	
+	function funPra( ht ){
+		clearTimeout( time );
+		$api.dom('.pra-open').innerHTML = ht;
+		$api.removeCls( $api.dom('.pra-open'), 'none');
+		$api.dom('.pra-open').style.top = ( document.documentElement.clientHeight - $api.dom('.pra-open').offsetHeight ) / 2 +'px';
+		$api.dom('.pra-open').style.left = ( document.documentElement.clientWidth - $api.dom('.pra-open').offsetWidth ) / 2 +'px';
+		var time = setTimeout(function(){
+			$api.addCls( $api.dom('.pra-open'), 'none');
+		},2000);
+	};
+	
+	function funOpenWin( tag ){
+		var name = tag.getAttribute('data-name');
+		$api.setStorage( 'backFrame' , name );	//设置需要关闭的frame
+		api.openFrame({
+			name: name,
+			url : './openWin.html',
+			rect: {
+				x: 0,
+				y: 0,
+				w: api.winWidth,
+				h: api.winHeight
+			},
+			pageParam:{
+				id :api.pageParam.id
+			}
+		});
+	};
+</script>

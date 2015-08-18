@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<style>
+		body{  background-color:white; }
+		div.flex-wrap{  -webkit-box-orient: vertical; -webkit-flex-flow: column; flex-flow: column;  height:100%; }
+		div.flex-con{ overflow:auto; }
+		.search{ background-color:#fafafa; padding:8px 15px; }
+		.search .ic-search{ background-color:#ebebeb; border-radius:50px; line-height:28px; color:#989898; background-repeat:no-repeat; background-position: 96% center; background-size:17px; padding:0 10px; }
+		
+		.title{ padding:15px 10px; color:#464646; }
+		.title span{ float:right;  background-repeat:no-repeat; background-position: right center; background-size:14px;  padding-right:18px; }
+		.tag{ border-bottom:10px solid #f2f2f2; padding-bottom:20px; }
+		.tag p{ padding:0 9px; }
+		.tag p span{ display:block; float:left; margin:.5%; background-color:#f5f5f5; line-height:40px; text-align:center; width:32.33333333333333%; }
+		
+		.more{ width: 50px; height: 50px; background: url(../../image/spinner_76_inner_holo.png) no-repeat center; background-size: 100% 100%; position: fixed; left: 50%; top: 50%; margin-left: -25px; margin-top: -25px;  -webkit-animation:fa-spin 1s infinite steps(8); animation:fa-spin 1s infinite steps(8);  }
+		
+		.find li{ padding:15px 10px; }
+		.find li.border-b:after{ left:10px; right:10px; }
+		.find li.hover{ background-color:#f5f5f5; }
+		.find li .con{ padding-right:20px; }
+		.find li .con h6{ color:#383838; padding:10px 0;  }
+		.find li .con p{ color:#aeaeae;   font-size:.8rem;  }
+		.find li .pic{ width:70px; height:60px; border:1px solid #eee; border-radius:4px;  background-repeat:no-repeat; background-position:center; background-size:100% auto; }
+	
+	
+		
+		body.black .search{ background-color: #363636; }
+		body.black .search .ic-search{ background-color: #252525; }
+		body.black .tag p span{ background-color: #303030; color: #6c6c6c; }
+		body.black .find li:hover{ background-color: #333; }
+		body.black .tag{ border-color: #303030; }
+		body.black .title{ color: #505050; }
+		body.black .find li .con h6{ color: #6e6e6e; }
+		body.black .find li .con p{ color: #4d4d4d; }
+		body.black .find li .pic{ border-color: #555; }
+	</style>
+</head>
+<body>
+	<div class="flex-wrap"  >
+		<div class="search border-b">
+			<div class="ic-search" >搜索感兴趣的内容</div>
+		</div>
+		<div class="flex-con none">
+			<nav class="tag" >
+				<header class="title" >
+					<span class="ic-reload" >换一换</span>
+					热词推荐
+				</header>
+				<p id="channel" >
+					<!-- <span>贾玲</span> -->
+				</p>
+			</nav>
+			<header class="title" >猜你喜欢</header>
+			<ul class="find" id="article" >
+				<!-- 
+					<li class="flex-wrap border-b">
+						<div class="con flex-con">
+							<h6 class="row-nowrap" >周杰伦</h6>
+							<p class="row-nowrap" >1979年1月18日出生于台湾省新北市，华语流行男歌手、词曲创作人、制作人、演员、MV及电影导演、编剧及监制。</p>
+						</div>
+						<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+					</li>
+					-->
+			</ul>
+		</div>
+	</div>
+	<div class="more"></div>
+</body>
+</html>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	var firstEnter =  [{	updatedAt : new Date(), id : 1111 ,imgs : '',title : '首次登入，请联网请求数据!!!'}] ;
+	apiready = function(){
+		$api.skin();
+		funIndexWinIni();
+		$api.fixIos7Bar( $api.dom( '.search' ) );
+	};
+	
+	
+	function funIndexWinIni(){
+			if( api.connectionType == 'none' ){
+					if( $api.getStorage( 'find-list-channel' ) ){
+						funEachData( $api.getStorage( 'find-list-channel' ) );		//无网调用本地缓存
+					}else{
+						funEachData( firstEnter );	//首次登陆无网无数据
+					};
+					if( $api.getStorage( 'find-list-article' ) ){
+						funEachArticleData( $api.getStorage( 'find-list-article' ) );		//无网调用本地缓存
+					}else{
+						funEachArticleData( firstEnter );	//首次登陆无网无数据
+					};
+				$api.toast( '网络错误，请检查' );
+			}else{
+				funChannerInt();	//有网则Ajax请求数据
+				funArticleIni();
+			};
+	}
+	
+	function funEachData( ret ){
+		if( typeof ret === 'string' ){	//如果是本地的数据一定是 String类型 必须转成JSON对象
+			ret = JSON.parse( ret );
+		}
+		for( var x in ret){
+			$api.append( $api.dom('#channel'), '<span tapmode="hover" onclick="funOpenHeader( this );" data-name="article-list-frm" data-id="'+ret[x].id+'">'+ret[x].title+'</span>');
+		}
+		api.parseTapmode();
+	}
+	
+	function funEachArticleData( ret ){
+		if( typeof ret === 'string' ){	//如果是本地的数据一定是 String类型 必须转成JSON对象
+			ret = JSON.parse( ret );
+		}
+		for( var x in ret){
+			if( x != ret.length ){
+				var border = 'border-b';
+			}
+			var ht = '<li tapmode="hover" class="flex-wrap '+border+'" data-id="'+ret[x].id+'" data-title="'+ret[x].title+'" onclick="funOpenArticle( this );" data-name="article-frm">'+
+			'	<div class="con flex-con">'+
+			'		<h6 class="row-nowrap" >'+ret[x].title+'</h6>'+
+			'		<p class="row-nowrap" >'+ret[x].title+'</p>'+
+			'	</div>'+
+			'	<div class="pic" style="background-image:url('+ret[x].imgs.split(',')[0]+');" ></div>'+
+			'</li>'
+			$api.append( $api.dom('#article'), ht);
+		}
+		api.parseTapmode();
+		$api.addCls( $api.dom('.more'), 'none' );
+		$api.removeCls( $api.dom('.flex-con'), 'none' );
+	}
+	
+	
+	function funOpenArticle( tag ){
+		var id = tag.getAttribute('data-id');
+		var title = tag.getAttribute('data-title');
+		var name = tag.getAttribute('data-name');
+		api.openWin({
+			name:  name,
+			url: '../public/header.html',
+			pageParam:{
+				file : 'article',
+				id : id,
+				title : title
+			},
+			animation : {            
+			    type:"movein",                //动画类型（详见动画类型常量）
+			    subType:"from_right",       //动画子类型（详见动画子类型常量）
+			    duration: 400 
+			}
+		});
+	};
+	function funOpenHeader( tag ){
+		var id = tag.getAttribute('data-id');
+		var name = tag.getAttribute('data-name');
+		var title = tag.innerHTML
+		api.openWin({
+			name:  name,
+			url: '../public/header.html',
+			pageParam:{
+				file : '../index-list/article-list',
+				id : id,
+				title : title
+			},
+		});
+	};
+	
+		function funArticleIni(){
+			var bodyParam ={ limit: 6, skip:Math.ceil( Math.random() * 10  ), where : { "type" : "img" }	};
+			$api.ajax('/article?filter='+JSON.stringify(bodyParam), 'get', null, function (ret, err) {
+				if (ret) {
+					if( ret.length ){
+						$api.setStorage( 'find-list-article', JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+						funEachArticleData( ret );
+					}else{
+						
+					}
+				}else{
+						$api.toast( err.msg, 5000 );
+				};
+			})
+		}
+	
+	function funChannerInt(  ){
+		var bodyParam ={ limit: 9, skip:Math.ceil( Math.random() * 10  )	};
+		$api.ajax('/channel?filter='+JSON.stringify( bodyParam ), 'get', null, function (ret, err) {
+			if (ret) {
+				$api.setStorage( 'find-list-channel', JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+				funEachData( ret );
+			}else{
+					if( $api.getStorage( 'find-list-channel' ) ){
+						funEachData( $api.getStorage( 'find-list-channel' ) );		//无网调用本地缓存
+					}else{
+						funEachData( firstEnter );	//首次登陆无网无数据
+					};
+				$api.toast( err.msg, 5000 );
+			}
+		});
+	};
+</script>

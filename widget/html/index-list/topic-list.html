@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<style>
+		body{  background-color:white; }
+		div.flex-wrap{  -webkit-box-orient: vertical; -webkit-flex-flow: column; flex-flow: column;  height:100%; }
+		div.flex-con{ overflow:auto; }
+		.top{ line-height:42px; height:42px;   text-align:center; color:#5d5d5d; font-size:1.2rem; position:relative; }
+		.top span{ width:42px; height:100%; display:block; position:absolute; top:0; background-repeat:no-repeat; background-position:center; background-size:50% auto; }
+		.top span.ic-message{ left:0; }
+		.top span.ic-add{ right:0; }
+		
+		.title{  background-color:#ebebeb; line-height:35px; min-height:10px; color:#828282; padding:0 10px; font-size:.8rem; }
+		
+		.arrows:before, .arrows:after{ height: 1px; }
+		.more{ width: 50px; height: 50px; background: url(../../image/spinner_76_inner_holo.png) no-repeat center; background-size: 100% 100%; position: fixed; left: 50%; top: 50%; margin-left: -25px; margin-top: -25px;  -webkit-animation:fa-spin 1s infinite steps(8); animation:fa-spin 1s infinite steps(8);  }
+			
+		
+		.find li{ padding:15px 10px; }
+		.find li.border-b:after{ left:10px; right:10px; }
+		.find li.hover{ background-color:#f5f5f5; }
+		.find li .con{ padding-left:8px; position:relative; overflow:hidden; line-height: 36px; }
+		.find li .con h6{ color:#383838;    }
+		.find li .con .onclick{ border:1px solid #7cbae5; color:#7cbae5; position:absolute; right:0;  top:50%;  line-height:26px; padding:0 8px;border-radius:4px; margin-top:-12px;  }
+		.find li .con .onclick:before{ content:'+ 围观';}
+		.find li .con .onclick.active:before{ content:'已围观'; }
+		.find li .con .onclick.number{ border:0; }
+		.find li .con .onclick.number:before{ display:none; }
+		.find li .con .onclick.icon{ border:0; }
+		.find li .con .onclick.icon:before{ content:'NEW'; background-color:#fe1a1a; border-radius:6px; color:#fbc0c0; padding:0 6px; }
+		.find li .con .onclick.arrows{ border:0;  -webkit-transform: rotate(-90deg); width:28px; margin-top:0; top:60%;  }
+		.find li .con .onclick.arrows:after{ content:'';  background-color:#b2b2b2; }
+		.find li .con .onclick.arrows:before{ content:'';  background-color:#b2b2b2; }
+		.find li .pic{ width:35px; height:35px; background-repeat:no-repeat; background-position:center; background-size:100% auto; }
+		.find li .arrows{ width: 40px; margin: 0 auto; }
+		.find li .arrows-more:before,
+		.find li .arrows-more:after{ background-color: #aaa; }
+		
+		#find-more.is-more li:nth-child( 2 ) ~ li.border-b{ display: none; }
+		
+		body.black .find li.hover{ background-color: #333; }
+		body.black .find li .con h6{ color: #707070; }
+		body.black header.title,
+		body.black .top{ background-color: #303030; }
+		body.black .find li .con .onclick{ color: #67778b; border-color: #67778b; }
+		body.black .arrows:after,
+		body.black .arrows:before{ background-color: #707070 !important; }
+	</style>
+</head>
+<body>
+	<div class="flex-wrap" >
+		<header class="top border-b">
+			话题
+			<span tapmode="hover" onclicK="$api.empty();" class="ic-message"></span>
+			<span tapmode="hover" onclicK="$api.empty();" class="ic-add"></span>
+		</header>
+		<div class="flex-con none">
+			<header class="title"></header>
+			<ul class="find" id="find-new" >
+				<!-- 
+					<li class="flex-wrap">
+						<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+						<div class="con flex-con">
+							<div class="onclick arrows"></div>
+							<h6 class="row-nowrap" >周杰伦</h6>
+						</div>
+					</li>
+				-->
+			</ul>
+			<header class="title border-t border-b">我围观的话题</header>
+			<ul class="find is-more" id="find-more" >
+				<!--
+					<li class="flex-wrap border-b">
+						<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+						<div class="con flex-con">
+							<div class="onclick icon"></div>
+							<h6 class="row-nowrap" >周杰伦</h6>
+						</div>
+					</li>
+					<li class="flex-wrap border-b">
+						<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+						<div class="con flex-con">
+							<div class="onclick number">345</div>
+							<h6 class="row-nowrap" >周杰伦</h6>
+						</div>
+					</li>
+				 -->
+				<li tapmode="hover" onclick="funMore( this );" class="flex-wrap">
+					<div class="arrows arrows-more"></div>
+				</li>
+			</ul>
+			<header class="title border-t border-b">可能感兴趣的话题</header>
+			<ul class="find" id="find">
+				<!--
+					<li class="flex-wrap border-b">
+						<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+						<div class="con flex-con">
+							<div class="onclick"></div>
+							<h6 class="row-nowrap" >周杰伦</h6>
+						</div>
+					</li>	
+				 -->
+			</ul>
+		</div>
+	</div>
+	<div class="more"></div>
+</body>
+</html>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		$api.skin();
+		 funWinIni();
+		$api.fixIos7Bar( $api.dom( '.top' ) );
+	};
+	function funMore( tag ){
+		$api.removeCls( $api.dom( '#find-more' ), 'is-more' );
+		tag.parentNode.removeChild( tag );
+	};
+	
+	function funWinIni(){
+			if( api.connectionType == 'none' ){
+				if( $api.getStorage( 'topic-list' ) ){
+					funEachData( $api.getStorage( 'topic-list' ) );		//无网调用本地缓存
+				}else{
+					funEachData( firstEnter );	//首次登陆无网无数据
+				};
+				$api.toast( '网络错误，请检查' );
+			}else{
+				funChannerInt();	//有网则Ajax请求数据
+			};
+	}
+	function funChannerInt(){
+		var bodyParam = { limit: 1000, skip:0, order : 'createdAt DESC',};
+		$api.ajax('/interest?filter='+JSON.stringify(bodyParam), 'get', null, function (ret, err) {
+			if (ret) {
+				if( ret.length ){
+					$api.setStorage( 'topic-list' , JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+					funEachData( ret );		//部署到HTML
+				}else{
+					
+				}
+			}else{
+				if( !$api.getStorage( 'topic-list' ) ){		//在无网络的情况下判断本地是否缓存
+					funEachData(  firstEnter );		//首次登陆无网无数据
+				}else{
+					funEachData( $api.getStorage( 'topic-list' ) );	//无网调用本地缓存
+				};
+				$api.toast( err.msg, 5000 );
+			}
+		});
+	}
+	
+	function funOpenHeader( tag ){
+		var id = tag.getAttribute('data-id');
+		var name = tag.getAttribute('data-name');
+		var title = tag.getAttribute('data-title');
+		api.openWin({
+			name:  name,
+			url: '../public/header.html',
+			pageParam:{
+				file : 'article',
+				id : id,
+				title : title,
+			}
+		});
+	};
+	function funEachData( ret ){
+		if( typeof ret === 'string' ){	//如果是本地的数据一定是 String类型 必须转成JSON对象
+			ret = JSON.parse( ret );
+		}
+		for( var x in ret){
+			var img = ret[x].imgs.url ? ret[x].imgs.url : ret[x].imgs ;
+				if( x == 0 ){
+					var ht = '<li tapmode="hover" data-title="'+ret[x].title+'"  onclick="funOpenHeader( this );" data-id="'+ret[x].id+'" data-name="topic-frm" class="flex-wrap">'+
+					'	<div class="pic" style="background-image:url('+img+');" ></div>'+
+					'	<div class="con flex-con">'+
+					'		<div class="onclick arrows"></div>'+
+					'		<h6 class="row-nowrap" >'+ret[x].title+'</h6>'+
+					'	</div>'+
+					'</li>'
+					$api.prepend( $api.dom('#find-new'), ht );
+				}else if( ret[x].isOnlookers ){
+					var ht = '<li tapmode="hover"  data-title="'+ret[x].title+'" onclick="funOpenHeader( this );"  data-id="'+ret[x].id+'"  data-name="topic-frm" class="flex-wrap border-b">'+
+					'	<div class="pic" style="background-image:url('+img+');" ></div>'+
+					'	<div class="con flex-con">'+
+					'		<div class="onclick icon"></div>'+
+					'		<h6 class="row-nowrap" >'+ret[x].title+'</h6>'+
+					'	</div>'+
+					'</li>'
+					$api.prepend( $api.dom('#find-more'), ht );
+				}else if( ! ret[x].isOnlookers ){
+					var ht = '<li tapmode="hover"  data-title="'+ret[x].title+'" onclick="funOpenHeader( this );"  data-id="'+ret[x].id+'"  data-name="topic-frm" class="flex-wrap border-b">'+
+					'	<div class="pic" style="background-image:url('+img+');" ></div>'+
+					'	<div class="con flex-con">'+
+					'		<div class="onclick"></div>'+
+					'		<h6 class="row-nowrap" >'+ret[x].title+'</h6>'+
+					'	</div>'+
+					'</li>	'
+					$api.prepend( $api.dom('#find'), ht );
+				}
+		}
+		$api.addCls( $api.dom('.more'), 'none' );
+		$api.removeCls( $api.dom('.flex-con'), 'none' );
+		api.parseTapmode();
+	}
+</script>
