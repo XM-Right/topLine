@@ -32,9 +32,9 @@
 		section ul li .onclick:after{ content:''; position:absolute; left:0; top:0; right:0; bottom:0; z-index:-1; }
 		section ul li .pics{ padding-top:8px; position: relative; width: 100%; min-height: 60px; }
 		section ul li .pics:after{ content:''; position:absolute; left:0; top:0; right:0; bottom:0;  background-repeat:no-repeat; background-position: center; background-size: auto 20%; }
-		section ul li .pics p{ background:url() no-repeat center; background-size:100% auto;  max-height: 140px; overflow: auto; margin: 0 3px; }
-		section ul li .pics p img{ width:40%; display: block; margin: 80px auto;  }
-		section ul li .pics p img.load{ width:100%; margin: 0; }
+		section ul li .pics p{ background:url() no-repeat center; background-size:100% auto;   margin: 0 3px; }
+		section ul li .pics p.max-pic{ height: 140px; }
+		section ul li .pics p img.load{ }
 		section ul li.empty{ text-align: center; padding-top: 160px; }
 		section ul li.more{ text-align:center; color:#aaa;position: absolute; left:0; bottom: 0; right: 0; }
 		section ul li.more span{ background:url(../../image/spinner_76_inner_holo.png) no-repeat; background-size:100% 100%; display:inline-block; width:16px; height:16px; vertical-align:middle; -webkit-animation:fa-spin 1s infinite steps(8); animation:fa-spin 1s infinite steps(8); }
@@ -177,7 +177,6 @@
 		<span>立即添加</span>
 		把此频道添加到首页
 	</div>
-	<div id="log" style="position:fixed; left:0; top:0; background:#000; color:white;"></div>
 </body>
 </html>
 <script type="text/javascript" src="../../script/SHA1.js"></script>
@@ -235,7 +234,7 @@
 		var eBgImg = $api.domAll('.bg-img');
 		for( var i = 0; i < eBgImg.length; i++){
 			var boundingBg = eBgImg[i].getBoundingClientRect();
-			if( boundingBg.bottom > 0  && boundingBg.top <= document.documentElement.clientHeight){
+			if( boundingBg.bottom > -document.documentElement.clientHeight / 2  && boundingBg.top <= document.documentElement.clientHeight){
 				eBgImg[i].style.backgroundImage = 'url('+eBgImg[i].getAttribute('data-echo')+')';
 				$api.addCls( eBgImg[i], 'load' );
 			}else{
@@ -243,18 +242,6 @@
 				$api.removeCls( eBgImg[i], 'load' );
 			}
 		}
-		var eImImg = $api.domAll('.im-img');
-		for( var i = 0; i < eImImg.length; i++){
-			var boundingIm = eImImg[i].getBoundingClientRect();
-			if( boundingIm.bottom > 0  && boundingIm.top <= document.documentElement.clientHeight){
-				eImImg[i].src = eImImg[i].getAttribute('data-echo');
-				$api.addCls( eImImg[i], 'load' );
-			}else{
-				eImImg[i].src = '../../image/default_bg.png';
-				$api.removeCls( eImImg[i], 'load' );
-			}
-		}
-		$api.dom('#log').innerHTML = $api.domAll('li').length;
 	}
 	function funWinIni(){
 		funFsIsOpen(  );
@@ -418,7 +405,7 @@
 									'	<div class="con flex-con flex-wrap">'+
 									'		<header class="flex-con" >'+data[num].title+'</header>'+
 									'		<div class="pics flex-wrap ic-move">'+
-									'			<p class="flex-con"><img class="im-img" data-echo="'+ret.url+'"  src="../../image/default_bg.png" /></p>'+
+									'			<p class="flex-con max-pic bg-img" data-echo="'+ret.url+'"  style="background-image:url(../../image/default_bg.png);" ></p>'+
 									'		</div>'+
 									'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
 										'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
@@ -464,7 +451,7 @@
 									'	<div class="con flex-con flex-wrap">'+
 									'		<header class="flex-con" >'+data[num].title+'</header>'+
 									'		<div class="pics flex-wrap">'+
-									'			<p class="flex-con"><img class="im-img" data-echo="'+ret.url+'"  src="../../image/default_bg.png" /></p>'+
+									'			<p class="flex-con max-pic bg-img" data-echo="'+ret.url+'"  style="background-image:url(../../image/default_bg.png);" ></p>'+
 									'		</div>'+
 									'		<div  tapmode="hover" onclick="funOpenHeader( this );" data-name="article-frm" class="onclick">'+
 									'			<div class="pageData none"  data-id="'+data[num].id+'"  data-title="'+data[num].title+'" ></div>'+
@@ -485,6 +472,7 @@
 						}
 					});
 				}else if( imgs.length >= 3 ){
+					cachesImg = [];
 					funcaches( data, des, num, imgs )
 				}
 			
@@ -557,10 +545,15 @@
 			if( ! $api.hasCls( $api.dom('#list .more'), 'none' ) )$api.addCls( $api.dom('#list .more'), 'none' );
 			if( $api.hasCls( $api.dom('#list'), 'pad-b' ) )$api.removeCls( $api.dom('#list'), 'pad-b' );
 		}
+		for( var x in ret ){
+			storageArticleLists.push( ret[x] )
+		};
+		
 		funcache( ret, des );
+		funIsBottom();
 		setTimeout(function(){
 				funFsWrite( JSON.stringify( storageArticleLists ) , fd );
-		},4000);
+		},Math.floor(Math.random()*4000+3000) );
 	}
 	
 	function setHeight( tag ){

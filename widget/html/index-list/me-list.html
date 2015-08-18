@@ -62,8 +62,7 @@
 					<p tapmode="hover" onclick="funOpenHeader( this );" data-name="login-frm" ><img src="../../image/account_icon_mobile.png" alt=""></p>
 					<p tapmode="hover" onclicK="$api.empty();" ><img src="../../image/account_icon_weixin.png" alt=""></p>
 					<p tapmode="hover" onclicK="$api.empty();" ><img src="../../image/account_icon_qzone.png" alt=""></p>
-					<p tapmode="hover" onclicK="$api.empty();" ><img src="../../image/account_icon_weibo.png" alt=""></p>
-					
+					<p tapmode="hover" onclicK="funauth();" ><img src="../../image/account_icon_weibo.png" alt=""></p>
 				</nav>
 				<div class="btn">
 					<span>更多登陆方式</span>
@@ -200,23 +199,26 @@
 			ret = JSON.parse( ret );
 		};
 		if( $api.getStorage( 'isLogin' )  ){
-			var rela_chan = ret.rela_chan.split(',');
-			var rela_chans = [];
-			for( var x in rela_chan ){
-				rela_chans.push( rela_chan[x] );
+			if( ret.rela_chan ){
+				var rela_chan = ret.rela_chan.split(',');
+				var rela_chans = [];
+				for( var x in rela_chan ){
+					rela_chans.push( rela_chan[x] );
+				}
+				var rela_chan = { where : { id: { inq : rela_chans } }	};
+				api.execScript({
+					name: 'root',
+					script: 'funChannerInt( \''+JSON.stringify( rela_chan )+'\' )'
+				});
 			}
-			var rela_chan = { where : { id: { inq : rela_chans } }	};
-			api.execScript({
-			    name: 'root',
-			    script: 'funChannerInt( \''+JSON.stringify( rela_chan )+'\' )'
-			});
 			$api.rmStorage('isLogin');
 		}
 		$api.dom('.user-wrap').innerHTML = '';
+		var img = ret.img || '../../image/default.png';
 		var ht = '<header class="title"></header>'+
 		'<li tapmode="hover" onclick="funOpenHeader( this )" data-name="personl-frm" class="flex-wrap user">'+
 		'	<div class="datas none">'+JSON.stringify( ret )+'</div>'+
-		'	<div class="pic" style="background-image:url('+ret.img+');" ></div>'+
+		'	<div class="pic" style="background-image:url('+ img  +');" ></div>'+
 		'	<div class="con flex-con">'+
 		'		<div class="arrows"></div>'+
 		'		<h6 class="row-nowrap" >'+ret.username+'</h6>'+
@@ -262,9 +264,55 @@
 	
     function funauth(){
         var weibo = api.require('weibo');
-        weibo.auth(function(ret,err){
-            alert( JSON.stringify( ret ))
-            alert( JSON.stringify( err ))
-        });
+		weibo.auth(function(ret,err){
+			if( ret.status ){
+				var bodyParam = {
+					username: ret.userId,
+					password: ret.userId
+				}
+				$api.ajax(	'/user?filter={"where":{"username":"'+ret.userId+'"}}', 'GET', null, function (ret, err) {
+					if( ret ){
+						if( ret.length ){
+							$api.ajax('/user/login', 'post', bodyParam, function (ret, err) {
+								if (ret) {
+									$api.setStorage( 'accessToken' , ret.id );	
+									$api.setStorage( 'isLogin' , true);		// 是否初始化首页频道
+									$api.setStorage( 'isGro-article' , true);		// 当前在 ”我的“ 界面时初始化首页隐藏首页 Group
+									funQueryUser( ret.userId );
+								} else {
+									$api.toast( err.msg );
+								}
+							});
+						}else{
+							$api.ajax(	'/user/', 'post', bodyParam, function (ret, err) {
+								if ( ret ) {
+									$api.ajax('/user/login', 'post', bodyParam, function (ret, err) {
+										if (ret) {
+											$api.setStorage( 'accessToken' , ret.id );	
+											$api.setStorage( 'isLogin' , true);		// 是否初始化首页频道
+											$api.setStorage( 'isGro-article' , true);		// 当前在 ”我的“ 界面时初始化首页隐藏首页 Group 
+											funQueryUser( ret.userId );
+										} else {
+											$api.toast( err.msg );
+										}
+									});
+								} else {
+									$api.toast( err.msg );
+								}
+							})
+						}
+					}else{
+						$api.toast( err.msg );
+					}
+				})
+				/*
+				*/
+			}else{
+				alert( JSON.stringify( err ))
+			}
+		});
     }
+	
+	
+        
 </script>

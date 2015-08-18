@@ -1,6 +1,6 @@
- <widget id="A6986874219906"  version="0.0.1">
+ <widget id="A6981075723139"  version="0.0.1">
 
-    <name>今日头条</name>
+    <name>topLine</name>
 
     <description>
 
@@ -38,7 +38,7 @@
 
 	<preference name="smartUpdate" value="false" />
 
-	<preference name="debug" value="false"/>
+	<preference name="debug" value="true"/>
 
 	<preference name="iOS7StatusBarAppearance" value="true"/>
 
@@ -65,6 +65,12 @@
 	<permission name="hardware" />
 
 	<permission name="contact" />
+	
+	 <feature name="weibo">
+   		<param name="urlScheme" value="wb3776742023" />
+   		<param name="apiKey" value="3776742023" />
+	   <param name="registUrl" value="http://www.baidu.com/" />
+	 </feature>
 
 </widget>
 

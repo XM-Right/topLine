@@ -105,7 +105,7 @@
 			  <div class="con">
 				  <div class="link">
 					  <span>订阅</span>
-					   1 | 
+					   0 | 
 					   <span>关注</span>
 					   0 |
 					   <span>粉丝</span>
@@ -133,12 +133,13 @@
 		if( typeof ret === 'string' ){
 			ret = JSON.parse( ret );
 		};
+		var img = ret.img || '../../image/default.png';
 		var ht = '	<div class="pic">'+
-		'	  <img src="'+ret.img+'" />'+
+		'	  <img src="'+ img +'" />'+
 		'  </div>'+
 		'  <div class="txt">'+
 		'	  <h6>'+ret.username+'</h6>'+
-		'	  <h6><span>设置</span></h6>'+
+		'	  <h6><span tapmode="hover" onclicK="$api.empty();" >设置</span></h6>'+
 		'  </div>'
 		$api.append( $api.dom('.personl-frm .title'), ht );
 	};
@@ -215,7 +216,6 @@
 				},5000);
 				var bodyParam = {
 					username: $api.val( phone ),
-					rela_chan: $api.val( phone ),
 					password: $api.val( password )
 				}
 				$api.ajax(	'/user/', 'post', bodyParam, function (ret, err) {
