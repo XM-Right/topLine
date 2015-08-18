@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<style>
+			.win-edit{ width: 100%; height: 100%; opacity: 0;  -webkit-transition:all .3s;  transition:all .3s;  position: fixed; left: 0; right: 0; bottom: 0; }
+			.win-edit.active{ opacity: 1; z-index: 10; }
+			.win-edit .content{ padding: 10px; position: fixed; left: 0; right: 0; bottom: 0; background-color: white; z-index: 2;  }
+			.win-edit .content textarea{ width: 98%; border: 1px solid #ddd; padding: 1%; min-height: 100px; }
+			.win-edit .content .shares{ color: #4b3f34; line-height: 32px; vertical-align: middle; padding: 10px 0; }
+			.win-edit .content .shares b{ float: right; padding: 2px 10px; border: 1px solid #eee; border-radius: 4px; line-height: 20px; color: #aaa; }
+			.win-edit .content .shares span{ display: inline-block; width: 32px; vertical-align: middle; -webkit-transform: scale(0.8,.8); transform: scale(0.8,.8); margin: 0 6px;	    border-radius: 50%; height: 32px;  background-repeat:no-repeat;  }
+			.win-edit .content .shares span.xin{ background-position: left top; }
+			.win-edit .content .shares span.wei{ background-position: -32px top; }
+			.win-edit .content .shares span.ren{ background-position: left -32px; }
+			.win-edit .content .shares span.qq{ background-position: -32px -32px; }
+			
+			.win-share { width: 100%; height: 100%; position: fixed; left: 0; right: 0; bottom: 0;  /* -webkit-transform: scale(0); transform: scale(0);   */-webkit-transition:all .3s;  transition:all .3s; opacity: 0;  }
+			.win-share.active{ /* -webkit-transform: scale(1); transform: scale(1); */  opacity: 1;  z-index: 10; }
+			.win-share .content{ padding: 10px; padding-top: 20px; position: fixed; left: 0; right: 0; bottom: 0; background-color: #fafafa; z-index: 2;}
+			.win-share .content p { overflow: hidden; }
+			.win-share .content p span{ display: block; float: left; width: 20%; text-align: center; color: #333; margin: 10px 0; font-size: .8rem; line-height: 22px;  }
+			.win-share .content p span img{ width: 70%; }
+			.win-share .content .btn{ border: 1px solid #ddd; line-height: 42px; text-align: center; margin: 20px 0; }
+			
+			.win-report{ padding-top: 20px; }
+			.win-report ul li label{ display: block; padding: 10px; vertical-align: middle; color: #666; }
+			.win-report ul li label input{ vertical-align: middle; margin-right: 16px;  }
+
+	</style>
+</head>
+<body>
+	  <div class="win-edit edit-frm">
+		<div  tapmode="hover" onclick="funCloseThisFrame();" class="showdown"></div>
+	  		<div class="content">
+			  <div>
+				  <textarea id="textarea" autofocus  placeholder="请文明发言，遵守“七条底线"></textarea>
+			  </div>
+			  <div class="shares">
+				  <b tapmode="hover" onclick="funComment();" >发布</b>
+				  分享到：
+				  <span class="ic-shares xin"></span>
+				  <span class="ic-shares wei"></span>
+				  <span class="ic-shares ren"></span>
+				  <span class="ic-shares qq"></span>
+			  </div>
+		  </div>
+	  </div>
+	  
+	  <div class="win-share share-frm">
+		<div  tapmode="hover" onclick="funCloseThisFrame();" class="showdown" ></div>
+	  		<div class="content">
+				  <p>
+					  <span><img src="../../image/weixinpengyou_popover_night.png" /><br />微信朋友圈</span>
+					  <span><img src="../../image/weixin_popover.png" /><br />微信好友</span>
+					  <span><img src="../../image/qq_popover.png" /><br />QQ好友</span>
+					  <span><img src="../../image/qzone_popover_night.png" /><br />QQ空间</span>
+					  <span><img src="../../image/weibo_popover.png" /><br />新浪微博</span>
+					  <span><img src="../../image/tencent_popover.png" /><br />腾讯微博</span>
+					  <span><img src="../../image/renren_popover_night.png" /><br />人人网</span>
+					  <span><img src="../../image/message_popover_night.png" /><br />短信</span>
+					  <span><img src="../../image/mail_popover_night.png" /><br />邮件</span>
+					  <span><img src="../../image/url_popover.png" /><br />转发连接</span>
+					  <span><img src="../../image/text_popover.png" /><br />转发内容</span>
+				  </p>
+				<div  tapmode="hover" onclick="funCloseThisFrame();" class="btn">取消分享</div>
+		  </div>
+	  </div>
+	  <div class="win-report report report-frm none">
+		  <ul>
+			  <li><label><input type="checkbox" name="report" />广告</label></li>
+			  <li><label><input type="checkbox" name="report" />过时</label></li>
+			  <li><label><input type="checkbox" name="report" />重复</label></li>
+			  <li><label><input type="checkbox" name="report" />错别字</label></li>
+			  <li><label><input type="checkbox" name="report" />色情低俗</label></li>
+			  <li><label><input type="checkbox" name="report" />标题夸张</label></li>
+			  <li><label><input type="checkbox" name="report" />观点错误</label></li>
+			  <li><label><input type="checkbox" name="report" />与实际不符</label></li>
+			  <li><label><input type="checkbox" name="report" />内容格式有误</label></li>
+			  <li><label><input type="checkbox" name="report" />其他错误</label></li>
+		  </ul>
+	  </div>
+</body>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		$api.skin();
+		$api.addCls( $api.dom( '.'+api.frameName ), 'active' );
+		$api.removeCls( $api.dom( '.'+api.frameName ), 'none' );
+	};
+	function funCloseThisFrame(){
+		api.closeFrame();
+		$api.rmStorage('backFrame');	//属于监听返回关闭页面所以当关闭本页时必须清除backFrame缓存变量
+	}
+	
+	function funComment( ){
+		if(  $api.getStorage('user') ){
+			var content = $api.dom('#textarea').value;
+			if( ! $api.trimAll( content ) ){
+				$api.toast('请输入评论');
+				 $api.dom('#textarea').focus();
+			}else{
+				var bodyParam = {
+					content: content,
+					username: JSON.parse( $api.getStorage( 'user' ) ).username,
+					rela_article : api.pageParam.id
+				}
+				$api.ajax('/comment', 'post', bodyParam, function (ret, err) {
+					if( ret ){
+						api.execScript({
+							frameName : api.winName,
+							script: 'funAdd( \'['+JSON.stringify( bodyParam )+']\' )'
+						});
+						setTimeout( function(){
+							funCloseThisFrame();
+							api.execScript({
+								frameName : api.winName,
+								script: 'goContent()'
+							});
+						},300);
+					}else{
+						$api.toast( err.msg );
+					}
+				});
+			}
+		}else{
+			$api.toast( '请先登录' );
+		}
+	}
+	
+</script>

@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+	<style>
+		body{  background-color:#ebebeb; }
+		div.flex-wrap{  -webkit-box-orient: vertical; -webkit-flex-flow: column; flex-flow: column;  height:100%; }
+		div.flex-con{ overflow:auto; }
+		.login{ background-color: #32495d; padding: 15px 0;  }
+		.login nav{ overflow: hidden; }
+		.login nav p{ width: 25%; float: left; text-align: center; }
+		.login nav p img{ width: 60%; }
+		.login .btn{ text-align: center;	padding: 10px 0;  }
+		.login .btn span{ border: 1px solid #4e5b66; border-radius: 4px; color: #7e8790; padding: 4px 6px; }
+		
+		.top{ background-color: white;  line-height:42px;  text-align:center; color:#5d5d5d; font-size:1.2rem; position:relative; }
+		.top span{ width:42px; height:42px; display:block; position:absolute; top:0; right:0; font-size:.8rem;  }
+		
+		.title{  background-color:#ebebeb; min-height:20px; }
+		
+		.find { background-color: white; }
+		.find li{ padding:0 10px; }
+		.find li.border-b:after{ left:10px; right:10px; }
+		.find li.hover{ background-color:#f5f5f5; }
+		.find li .con{ padding-left:8px; position:relative; overflow:hidden;  }
+		.find li .con h6{ color:#525252; line-height: 42px; font-size: 1.1rem;  }
+		.find li .con h6 span{ color: #b9b9b9; font-size: .8rem; padding-left: 10px; }
+		.find li .con .switch{ position:absolute; right: 0; top: 50%; margin-top: -12px; z-index: 2; }
+		.find li .pic{ width:35px; background-repeat:no-repeat; background-position:right center; background-size:60% auto; }
+		.find li .con .arrows{ position:absolute; right:-12px; padding:0 8px; -webkit-transform: rotate(-90deg); width:28px; top:60%;  }
+		.find li .con .arrows:after,
+		.find li .con .arrows:before{ background-color:#cfcfcf; height: 1px; }
+		.find li.user{ padding: 10px; }
+		.find li.user .con{ 	padding-top: 10px; }
+		.find li.user .pic{ border-radius: 50%; width: 58px; height: 58px; background-size: 100%; }
+		.find li.user h6{ line-height: inherit; padding: 4px 0; }
+		.find li.user p{ color: #b9b9b9; font-size: .8rem; }
+		
+		body.black .top,
+		body.black .find{ background-color: #303030; }
+		body.black .title{ background-color: #363636; }
+		body.black .find li .con h6,
+		body.black .find li .con h6 span{ color: #707070;  }
+		body.black .find li .con .arrows:after,
+		body.black .find li .con .arrows:before{ background-color: #707070; }
+		body.black .find li .con p{ color: #626262; }
+		body.black li.hover{ background-color:#333; }
+	</style>
+</head>
+<body>
+	<div class="flex-wrap" >
+		<header class="top border-b">
+			我的
+			<span>设置</span>
+		</header>
+		<div class="flex-con">
+			<header class="login login-wrap" >
+				<nav>
+					<p tapmode="hover" onclick="funOpenHeader( this );" data-name="login-frm" ><img src="../../image/account_icon_mobile.png" alt=""></p>
+					<p tapmode="hover" onclicK="$api.empty();" ><img src="../../image/account_icon_weixin.png" alt=""></p>
+					<p tapmode="hover" onclicK="$api.empty();" ><img src="../../image/account_icon_qzone.png" alt=""></p>
+					<p tapmode="hover" onclicK="$api.empty();" ><img src="../../image/account_icon_weibo.png" alt=""></p>
+					
+				</nav>
+				<div class="btn">
+					<span>更多登陆方式</span>
+				</div>
+			</header>
+			<ul class="find none user-wrap">
+				<!--
+					<header class="title"></header>
+					<li class="flex-wrap user">
+						<div class="pic" style="background-image:url(http://d.hiphotos.baidu.com/image/w%3D310/sign=e2ce6007b33533faf5b6952f98d3fdca/ac6eddc451da81cbc2cd6ac45066d01609243194.jpg);" ></div>
+						<div class="con flex-con">
+							<div class="arrows"></div>
+							<h6 class="row-nowrap" >周杰伦</h6>
+							<p class="row-nowrap" >22232人围观，1220条帖子</p>
+						</div>
+					</li>
+				 -->
+			</ul>
+			<header class="title"></header>
+			<ul class="find">
+				<li tapmode="hover"  onclick="funOpenHeader2( this );" class="flex-wrap" data-name="collect-frm" >
+					<div class="pic ic-collect" ></div>
+					<div class="con flex-con">
+						<div class="arrows"></div>
+						<h6 class="border-b" >收藏</h6>
+					</div>
+				</li>
+				<li  tapmode="hover" onclicK="$api.empty();" class="flex-wrap">
+					<div class="pic ic-inform" ></div>
+					<div class="con flex-con">
+						<div class="arrows"></div>
+						<h6>通知</h6>
+					</div>
+				</li>
+			</ul>
+			<header class="title"></header>
+			<ul class="find">
+				<li  tapmode="hover" onclicK="$api.empty();" class="flex-wrap">
+					<div class="pic ic-store" ></div>
+					<div class="con flex-con">
+						<div class="arrows"></div>
+						<h6 class="border-b" >商城<span>特卖，电影</span></h6>
+					</div>
+				</li>
+				<li  tapmode="hover" onclicK="$api.empty();" class="flex-wrap">
+					<div class="pic ic-activity" ></div>
+					<div class="con flex-con">
+						<div class="arrows"></div>
+						<h6>活动</h6>
+					</div>
+				</li>
+			</ul>
+			<header class="title"></header>
+			<ul class="find">
+				<li  tapmode="hover" onclicK="$api.empty();" class="flex-wrap">
+					<div class="pic ic-download" ></div>
+					<div class="con flex-con">
+						<div class="arrows"></div>
+						<h6 class="border-b" >下载</h6>
+					</div>
+				</li>
+				<li  tapmode="hover" onclicK="$api.empty();" class="flex-wrap">
+					<div class="pic ic-night" ></div>
+					<div class="con flex-con">
+						<!-- <input type="checkbox"  onclick="funFocus( this ); " class="switch skin-bth" > -->
+						<input type="checkbox"  class="switch skin-bth" >
+						<h6 class="border-b" >夜间</h6>
+					</div>
+				</li>
+				<li  tapmode="hover" onclicK="$api.empty();" class="flex-wrap">
+					<div class="pic ic-feedback" ></div>
+					<div class="con flex-con">
+						<div class="arrows"></div>
+						<h6>反馈</h6>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>
+<script type="text/javascript" src="../../script/SHA1.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+	
+	apiready = function(){
+		$api.skin();
+		funWinIni();
+		$api.fixIos7Bar( $api.dom( '.top' ) );
+	};
+	function funFocus( tag ){
+		if( tag.checked ){
+			api.sendEvent({
+				name: 'skin',
+				extra: { skin: 'black' }
+			});
+			api.setPrefs({
+				key: 'skin',
+				value: 'black'
+			});
+		}else{
+			api.sendEvent({
+				name: 'skin',
+				extra: { skin: false }
+			});
+			api.removePrefs({
+				key: 'skin'
+			});
+		}
+	}
+	
+	function funWinIni(){
+		if( $api.getStorage( 'user' ) ){
+			funEachData( $api.getStorage( 'user' ) );	//无网调用本地缓存
+		};
+	}
+	
+	
+	function funQueryUser( id ){
+		$api.ajax('/user/'+id, 'get', null, function (ret, err) {
+			if (ret) {
+				$api.setStorage('user', JSON.stringify ( ret ) );
+				funEachData( ret );
+			} else {
+				$api.toast( err.msg );
+			}
+		});
+	};
+	
+	
+
+	function funEachData( ret ){
+		if( typeof ret === 'string' ){
+			ret = JSON.parse( ret );
+		};
+		if( $api.getStorage( 'isLogin' )  ){
+			var rela_chan = ret.rela_chan.split(',');
+			var rela_chans = [];
+			for( var x in rela_chan ){
+				rela_chans.push( rela_chan[x] );
+			}
+			var rela_chan = { where : { id: { inq : rela_chans } }	};
+			api.execScript({
+			    name: 'root',
+			    script: 'funChannerInt( \''+JSON.stringify( rela_chan )+'\' )'
+			});
+			$api.rmStorage('isLogin');
+		}
+		$api.dom('.user-wrap').innerHTML = '';
+		var ht = '<header class="title"></header>'+
+		'<li tapmode="hover" onclick="funOpenHeader( this )" data-name="personl-frm" class="flex-wrap user">'+
+		'	<div class="datas none">'+JSON.stringify( ret )+'</div>'+
+		'	<div class="pic" style="background-image:url('+ret.img+');" ></div>'+
+		'	<div class="con flex-con">'+
+		'		<div class="arrows"></div>'+
+		'		<h6 class="row-nowrap" >'+ret.username+'</h6>'+
+		'		<p class="row-nowrap" >刚刚开始你的旅途</p>'+
+		'	</div>'+
+		'</li>'
+		$api.append( $api.dom('.user-wrap'), ht );
+		$api.addCls( $api.dom( '.login-wrap' ), 'none' );
+		$api.removeCls( $api.dom( '.user-wrap' ), 'none' );
+		api.parseTapmode();	
+	};
+	
+	
+	function funOpenHeader( tag ){
+		var name = tag.getAttribute('data-name');
+		api.openWin({
+			name:  name,
+			url: '../public/header.html',
+			pageParam:{
+				file : 'login-reg'
+			},
+		});
+	};
+	
+	function funOpenHeader2( tag ){
+		var name = tag.getAttribute('data-name');
+		api.openWin({
+			name:  name,
+			url: '../public/header.html',
+			pageParam:{
+				file : '../index-list/article-list',
+			},
+		});
+	};
+	
+	function funOutLogin(){
+		$api.removeCls( $api.dom( '.login-wrap' ), 'none' );
+		$api.addCls( $api.dom( '.user-wrap' ), 'none' );
+		$api.rmStorage('user');
+		$api.rmStorage('accessToken');
+	};
+	
+	
+    function funauth(){
+        var weibo = api.require('weibo');
+        weibo.auth(function(ret,err){
+            alert( JSON.stringify( ret ))
+            alert( JSON.stringify( err ))
+        });
+    }
+</script>

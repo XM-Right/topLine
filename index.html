@@ -1,0 +1,304 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <title>今日头条</title>
+    <link rel="stylesheet" type="text/css" href="./css/style.css" />
+	<style>
+		body.flex-wrap{  -webkit-box-orient: vertical; -webkit-flex-flow: column; flex-flow: column; }
+		.head{ background-color:#d43d3d;  line-height:44px;  height:44px;  width:100%; position:relative; overflow:hidden;  box-shadow:0px 2px 2px rgba(0,0,0,.2) inset; }
+		.head ul{ overflow:hidden;  }
+		.head ul li{ float:left; padding:0 16px; color:#eaabab;  position:relative; z-index:2;  }
+		.head ul li.active{ color:#d95353; }
+		.head ul li.high{ position:absolute; left:5px; bottom:5px; background-color:#f5d1d1; width:50px;  transition: all .3s; z-index:0; padding:0; border-radius:4px; height:34px; }	
+		.arrows{ background-color:#d43d3d;  position:absolute; right:0; bottom:0; height:44px; width:44px; transition: all 1s; z-index:2; box-shadow:-2px 0 2px rgba(0,0,0,.2); border-radius:20% 0 0 20%; }
+		.arrows.active{ box-shadow:none; border-radius: 0; box-shadow: -1px 2px 2px rgba(0,0,0,.2) inset; }
+		
+		.fot{ text-align:center; background-color:#f5f5f5; height:40px; color:#898989;  }
+		.fot p{ background-repeat:no-repeat; background-position: center 4px; background-size:17px; padding-top:24px; font-size:.8rem; }
+		.fot p.active{ color:#f96d6d; }
+		.border-t:before,
+		.border-b:after{    background-color: #ccc; }
+		
+		
+		body.black .head,
+		body.black .arrows{ background-color: #651414; }
+		body.black .head ul li{ color: #cacaca; }
+		body.black .arrows:before,
+		body.black .arrows:after{ background-color: #cacaca; }
+		body.black .head ul li.active{ color: #651414; }
+		body.black .head ul li.high{ background-color: #b29e9e; }
+		body.black .fot{ background-color: #393939; }
+		body.black .fot p{ color: #464646; }
+		body.black .fot p.active{ color: #885353; }
+	</style>
+</head>
+<body class="flex-wrap" >
+	<nav class="head" id="head" >
+		<ul id="nav" >	
+			<li tapmode="hover" class="active default" data-id="55a47b3293ed3a8f404495d8" onclick="funNavTab( this );"><i class="datas none">{ "updatedAt" : "2015-07-17 14:26:43" , "id" : "55a47b3293ed3a8f404495d8", "imgs" : "http://img5.imgtn.bdimg.com/it/u=1926566633,1690841856&fm=21&gp=0.jpg" , "title" : "推荐" } </i>推荐</li>
+			
+			<li class="high"></li>
+		</ul>
+		<div tapmode="hover" onclick="funOpenChannerList();" class="arrows"></div>
+	</nav>
+	<div class="flex-con" id="main" ></div>
+	<nav class="fot flex-wrap border-t">
+		<p tapmode="hover" onclick="funFotNavTab( this );"  data-name="article-list"  class="flex-con ic-home active" >首页</p>
+		<p tapmode="hover" onclick="funFotNavTab( this );"  data-name="find-list"  class="flex-con ic-search" >发现</p>
+		<p tapmode="hover" onclick="funFotNavTab( this );"  data-name="topic-list"  class="flex-con ic-topic" >话题</p>
+		<p tapmode="hover" onclick="funFotNavTab( this );"  data-name="me-list"  class="flex-con ic-me" >我的</p>
+	</nav>
+</body>
+</html>
+<script type="text/javascript" src="./script/SHA1.js"></script>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript" src="./script/iscroll-lite.js"></script>
+<script type="text/javascript">
+	//	$api.clearStorage ();
+	var eNavs ,
+		eNavW = 44,
+		myScroll,
+		firstEnter =  [{	updatedAt : new Date(), id : 1111 ,imgs : '',title : '首次登入，请联网请求数据!!!'}] ;
+		
+	apiready = function(){
+		$api.fixIos7Bar( $api.dom('#head') );
+		$api.skin();
+		api.showProgress({
+		    style: 'default',
+		    animationType: 'zoom',
+		    title: '努力加载中...',
+		    text: '请稍后...',
+		    modal: true
+		});
+		
+	funIndexWinIni();
+		api.addEventListener({
+		    name:'keyback'
+		},function(ret,err){
+			if( $api.getStorage( 'backFrame' ) ){
+				api.execScript({
+				    frameName: $api.getStorage( 'backFrame' ),
+				    script: 'funCloseThisFrame()'
+				});
+			}else{
+				api.closeWin();
+			}
+		});
+	};
+
+
+	function funIndexWinIni(){
+		if( $api.getStorage( 'index-channel' ) ){
+			funEachData( $api.getStorage( 'index-channel' ) );		//无网调用本地缓存
+		}else{
+			if( api.connectionType == 'none' ){
+				funEachData( firstEnter );	//首次登陆无网无数据
+				$api.toast( '网络错误，请检查' );
+			}else{
+				funChannerInt();	//有网则Ajax请求数据
+			};
+		};
+	}
+	function funChannerInt( body ){
+		api.showProgress({
+		    style: 'default',
+		    animationType: 'zoom',
+		    title: '努力加载中...',
+		    text: '请稍后...',
+		    modal: true
+		});
+		//	var bodyParam = JSON.parse( body ) || { limit: 14, skip:0	};
+		var bodyParam = body ? JSON.parse( body ) : { limit: 14, skip:0	};
+		$api.ajax('/channel?filter='+JSON.stringify( bodyParam ), 'get', null, function (ret, err) {
+			if (ret) {
+				$api.setStorage( 'index-channel' , JSON.stringify( ret ) );	//每一次都缓存到本地一次数据
+				funEachData( ret );		//部署到HTML
+			}else{
+				if( !$api.getStorage( 'index-channel' ) ){		//在无网络的情况下判断本地是否缓存
+					funEachData(  firstEnter );		//首次登陆无网无数据
+				}else{
+					funEachData( $api.getStorage( 'index-channel' ) );	//无网调用本地缓存
+				};
+				$api.toast( err.msg, 5000 );
+			}
+		});
+	};
+	
+	function funEachData( ret ){
+		if( typeof ret === 'string' ){	//如果是本地的数据一定是 String类型 必须转成JSON对象
+			ret = JSON.parse( ret );
+		}
+		var eNewLi = $api.domAll('#nav li.newLi');
+		if( ! eNewLi.lengt ){
+			for( var x in eNewLi){
+				if( eNewLi[x].nodeType ){
+					$api.remove( eNewLi[x] );
+				}
+			}
+		}
+		for( var x in ret){
+			$api.before($api.dom('#nav .high'),  '<li class="newLi" data-id="'+ret[x].id+'" tapmode="hover" onclick="funNavTab( this );" ><i class="datas none"> '+JSON.stringify( ret[x] )+' </i>'+ret[x].title+'</li>' );
+			if( ret[x].id === 1111 ){	//首次登入初始化提示信息部署到HTML	
+				$api.dom('#nav .default').remove();
+				$api.dom('.arrows').remove();
+				$api.dom( '#nav li.high').style.width = ( $api.dom( '#nav li.newLi').offsetWidth - 10) + 'px';
+			}
+			api.parseTapmode();
+		};
+		eNavW = 44;
+		eNavs = $api.domAll('#nav li:not(.high)');
+		for( var x in eNavs  ){
+			if( eNavs[x].nodeType ){
+				eNavW += eNavs[x].offsetWidth;
+			};
+		};
+		$api.dom('#nav').style.width = eNavW +'px';
+		funNavLoaded();
+		funOpenGroup();	
+	};
+	
+	function funNavLoaded() {
+		myScroll = new IScroll('#head', { 
+			scrollX: true,
+			probeType: 3,
+			mouseWheel: true
+		});
+		myScroll.on('scrollEnd', function(){
+			if( this.x == - ( $api.dom('#nav').offsetWidth - $api.dom('body').offsetWidth ) ){
+				$api.addCls($api.dom('.arrows'), 'active');
+			}else{
+				$api.removeCls($api.dom('.arrows'), 'active');
+			}
+		});
+	}
+	function funNavTab( tag , isGroup){
+		var index = $api.thisActive( tag );
+		$api.dom( '#nav li.high').style.width = ( tag.offsetWidth - 10) + 'px';
+		$api.dom( '#nav li.high').style.left = ( tag.offsetLeft + 5 ) + 'px';
+		if( tag.offsetLeft > $api.dom('body').offsetWidth / 2 ){
+			myScroll.scrollToElement( tag.previousSibling.previousSibling );
+		};
+		if( !isGroup ){
+			api.setFrameGroupIndex({
+				name: 'gro-article',
+				index: index,
+				scroll : true
+			});
+		}
+	};
+	
+	
+	var showFrm = [ 'article-list' ];
+	function funFotNavTab( tag ){
+		var index = $api.thisActive( tag ),
+			name = tag.getAttribute('data-name');
+			if( showFrm.indexOf( name ) == -1 ){
+				showFrm.push( name );	
+				if( showFrm[x] !== 'article-list'){
+					api.openFrame({
+						name: name,
+						url : './html/index-list/'+name+'.html',
+						rect: {
+							x: 0,
+							y: 0,
+							w: api.winWidth,
+							h: api.winHeight - $api.dom('.fot').offsetHeight
+						}
+					});
+				}
+			}else{
+				if( name == 'article-list'){
+					api.setFrameGroupAttr({
+					    name: 'gro-article',
+					    hidden:false
+					});
+					for ( var x in showFrm ){
+						if( showFrm[x] !== 'article-list'){
+							api.setFrameAttr({
+							    name: showFrm[x],
+							    hidden : true
+							});
+						}
+					}
+				}else{
+					api.setFrameAttr({
+					    name: name,
+					    hidden : false
+					});
+					for ( var x in showFrm ){
+						if( showFrm[x] !== name ){
+							if( showFrm[x] === 'article-list'){
+								api.setFrameGroupAttr({
+								    name: 'gro-article',
+								    hidden:true
+								});
+							}else{
+								api.setFrameAttr({
+								    name: showFrm[x],
+								    hidden : true
+								});
+							}
+						}
+					}
+				}
+			}
+	}
+	
+	function funOpenGroup(){
+		var frames = [];
+		api.closeFrameGroup({
+		    name: 'gro-article'
+		});
+		for( var x in eNavs){
+			if( eNavs[x].nodeType ){
+				var id = eNavs[x].getAttribute('data-id');
+				var data = JSON.parse( eNavs[x].querySelector('i').innerHTML );
+				frames.push( {
+					name: 'frm-home-'+data.id, 
+					url: './html/index-list/article-list.html',
+					pageParam:{
+						id : id,
+						title : data.title
+					}, 
+				} );
+			}
+		};
+		api.openFrameGroup ({
+			name: 'gro-article',
+			background:'#fff',
+			rect:{
+				x: 0,
+				y: $api.dom('#head').offsetHeight,
+				w: api.winWidth,
+				h: $api.dom('#main').offsetHeight
+			},
+			frames : frames
+		}, function(ret, err){
+			if( $api.getStorage( 'isGro-article' )  ){	//	当前在 ”我的“ 界面时初始化首页隐藏首页 Group 
+				api.setFrameGroupAttr({
+				    name: 'gro-article',
+				    hidden:true
+				});
+				$api.rmStorage('isGro-article');
+			}
+			funNavTab( eNavs[ret.index], true )	
+			api.hideProgress();
+		});
+	}
+	
+	function funOpenChannerList(){
+		$api.setStorage( 'backFrame' , 'channel-list' );	//设置需要关闭的frame
+		api.openFrame({
+			name: 'channel-list',
+			url : './html/public/channel-list.html',
+			rect: {
+				x: 0,
+				y: 0,
+				w: api.winWidth,
+				h: api.winHeight
+			}
+		});
+	};
+</script>
