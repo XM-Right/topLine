@@ -489,7 +489,7 @@
             var fullScreen = api.fullScreen;
             var iOS7StatusBarAppearance = api.iOS7StatusBarAppearance;
             if (numSV >= 7 && !fullScreen && iOS7StatusBarAppearance) {
-                el.style.paddingTop = '20px';
+                el.style.paddingTop = '30px';
             }
         }
     };
