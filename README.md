@@ -10,10 +10,10 @@
 
                 topLine/<br />
                 ├── classJson/
-                │   ├── article.json        文章数据    <br />
-                │   ├── channel.json               频道数据<br />
-                │   ├── comment.json               评论数据<br />
-                │   ├── file.json                  图片数据<br />
-                │   ├── interest.json              兴趣爱好数据<br />
-                │   └── modelClass.json            class表结构<br />
-                └── widget                      项目源码包<br />
+                │   ├── article.json        文章数据   
+                │   ├── channel.json               频道数据
+                │   ├── comment.json               评论数据
+                │   ├── file.json                  图片数据
+                │   ├── interest.json              兴趣爱好数据
+                │   └── modelClass.json            class表结构
+                └── widget                      项目源码包
